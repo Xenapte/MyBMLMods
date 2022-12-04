@@ -15,7 +15,7 @@
 #include <gdiplus.h>
 
 extern "C" {
-	__declspec(dllexport) IMod* BMLEntry(IBML* bml);
+  __declspec(dllexport) IMod* BMLEntry(IBML* bml);
 }
 
 inline std::wstring ConvertAnsiToWide(const std::string& str) {
@@ -34,8 +34,8 @@ BOOL FileExists(LPCTSTR szPath) {
 
 class ScreenCapturer : public IMod {
 private:
-	Gdiplus::GdiplusStartupInput gdiplus_startup_input;
-	ULONG_PTR gdiplus_token;
+  Gdiplus::GdiplusStartupInput gdiplus_startup_input;
+  ULONG_PTR gdiplus_token;
   asio::thread_pool pool = asio::thread_pool(4);
   CLSID png_clsid, jpeg_clsid;
   IProperty *prop_key{}, *prop_notify{}, *prop_jpeg{}, *prop_copy{}, *prop_copy_only{};
@@ -80,18 +80,18 @@ private:
 
 
 public:
-	ScreenCapturer(IBML* bml) : IMod(bml) {}
+  ScreenCapturer(IBML* bml) : IMod(bml) {}
 
-	virtual CKSTRING GetID() override { return "ScreenCapturer"; }
-	virtual CKSTRING GetVersion() override { return "0.0.1"; }
-	virtual CKSTRING GetName() override { return "Screen Capturer"; }
-	virtual CKSTRING GetAuthor() override { return "BallanceBug"; }
-	virtual CKSTRING GetDescription() override { return "Take and save screenshots in-game."; }
-	DECLARE_BML_VERSION;
+  virtual CKSTRING GetID() override { return "ScreenCapturer"; }
+  virtual CKSTRING GetVersion() override { return "0.0.1"; }
+  virtual CKSTRING GetName() override { return "Screen Capturer"; }
+  virtual CKSTRING GetAuthor() override { return "BallanceBug"; }
+  virtual CKSTRING GetDescription() override { return "Take and save screenshots in-game."; }
+  DECLARE_BML_VERSION;
 
-	void OnLoad() override {
+  void OnLoad() override {
     CreateDirectory("..\\Screenshots", NULL);
-		Gdiplus::GdiplusStartup(&gdiplus_token, &gdiplus_startup_input, nullptr);
+    Gdiplus::GdiplusStartup(&gdiplus_token, &gdiplus_startup_input, nullptr);
     GetEncoderClsid(L"image/png", &png_clsid);
     GetEncoderClsid(L"image/jpeg", &jpeg_clsid);
 
@@ -115,20 +115,20 @@ public:
     prop_copy_only->SetComment("Only copy screenshots to the clipboard without saving them on the disk. Requires CopyToClipboard to be true;");
 
     load_config_values();
-	}
+  }
 
-	void OnUnload() override {
+  void OnUnload() override {
     pool.join();
-		Gdiplus::GdiplusShutdown(gdiplus_token);
-	}
+    Gdiplus::GdiplusShutdown(gdiplus_token);
+  }
 
   void OnModifyConfig(CKSTRING category, CKSTRING key, IProperty* prop) override {
     load_config_values();
   }
 
-	void OnProcess() override {
-		if (m_bml->GetInputManager()->IsKeyPressed(screenshot_key)) {
-			auto handle = static_cast<HWND>(m_bml->GetCKContext()->GetMainWindow());
+  void OnProcess() override {
+    if (m_bml->GetInputManager()->IsKeyPressed(screenshot_key)) {
+      auto handle = static_cast<HWND>(m_bml->GetCKContext()->GetMainWindow());
       VxRect rect; m_bml->GetRenderContext()->GetWindowRect(rect);
       int width = rect.GetWidth();
       int height = rect.GetHeight();
@@ -188,10 +188,10 @@ public:
         DeleteObject(hbmp);
         ReleaseDC(handle, hdcScreen);
       });
-		}
-	}
+    }
+  }
 };
 
 IMod* BMLEntry(IBML* bml) {
-	return new ScreenCapturer(bml);
+  return new ScreenCapturer(bml);
 }
