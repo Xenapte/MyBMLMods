@@ -4,7 +4,7 @@
 #include <asio/post.hpp>
 #include <asio/thread_pool.hpp>
 
-#include <BML/BMLAll.h>
+#include <BMLPlus/BMLAll.h>
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -13,6 +13,8 @@
 #include <Windows.h>
 #include <objidl.h>
 #include <gdiplus.h>
+
+typedef const char* C_CKSTRING;
 
 extern "C" {
 	__declspec(dllexport) IMod* BMLEntry(IBML* bml);
@@ -82,11 +84,11 @@ private:
 public:
 	ScreenCapturer(IBML* bml) : IMod(bml) {}
 
-	virtual CKSTRING GetID() override { return "ScreenCapturer"; }
-	virtual CKSTRING GetVersion() override { return "0.0.1"; }
-	virtual CKSTRING GetName() override { return "Screen Capturer"; }
-	virtual CKSTRING GetAuthor() override { return "BallanceBug"; }
-	virtual CKSTRING GetDescription() override { return "Take and save screenshots in-game."; }
+	virtual C_CKSTRING GetID() override { return "ScreenCapturer"; }
+	virtual C_CKSTRING GetVersion() override { return "0.0.1"; }
+	virtual C_CKSTRING GetName() override { return "Screen Capturer"; }
+	virtual C_CKSTRING GetAuthor() override { return "BallanceBug"; }
+	virtual C_CKSTRING GetDescription() override { return "Take and save screenshots in-game."; }
 	DECLARE_BML_VERSION;
 
 	void OnLoad() override {
@@ -122,7 +124,7 @@ public:
 		Gdiplus::GdiplusShutdown(gdiplus_token);
 	}
 
-  void OnModifyConfig(CKSTRING category, CKSTRING key, IProperty* prop) override {
+  void OnModifyConfig(C_CKSTRING category, C_CKSTRING key, IProperty* prop) override {
     load_config_values();
   }
 
