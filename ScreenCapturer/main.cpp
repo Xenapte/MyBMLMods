@@ -51,21 +51,20 @@ private:
     if (size == 0)
       return -1;  // Failure
 
-    Gdiplus::ImageCodecInfo* pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(malloc(size));
-    if (pImageCodecInfo == NULL)
+    auto pData = std::make_unique_for_overwrite<std::byte[]>(size);
+    if (!pData)
       return -1;  // Failure
+    auto pImageCodecInfo = (Gdiplus::ImageCodecInfo*) pData.get();
 
-    GetImageEncoders(num, size, pImageCodecInfo);
+    Gdiplus::GetImageEncoders(num, size, pImageCodecInfo);
 
     for (UINT j = 0; j < num; ++j) {
       if (wcscmp(pImageCodecInfo[j].MimeType, format) == 0) {
         *pClsid = pImageCodecInfo[j].Clsid;
-        free(pImageCodecInfo);
         return j;  // Success
       }
     }
 
-    free(pImageCodecInfo);
     return -1;  // Failure
   }
 
@@ -80,7 +79,11 @@ private:
 
 
 public:
-  ScreenCapturer(IBML* bml) : IMod(bml) {}
+  ScreenCapturer(IBML* bml) : IMod(bml) {
+    Gdiplus::GdiplusStartup(&gdiplus_token, &gdiplus_startup_input, nullptr);
+    GetEncoderClsid(L"image/png", &png_clsid);
+    GetEncoderClsid(L"image/jpeg", &jpeg_clsid);
+  }
 
   virtual CKSTRING GetID() override { return "ScreenCapturer"; }
   virtual CKSTRING GetVersion() override { return "0.0.1"; }
@@ -91,9 +94,6 @@ public:
 
   void OnLoad() override {
     CreateDirectory("..\\Screenshots", NULL);
-    Gdiplus::GdiplusStartup(&gdiplus_token, &gdiplus_startup_input, nullptr);
-    GetEncoderClsid(L"image/png", &png_clsid);
-    GetEncoderClsid(L"image/jpeg", &jpeg_clsid);
 
     auto *config = GetConfig();
     config->SetCategoryComment("Action", "Settings related to triggering the Screen Capturer.");
@@ -136,7 +136,7 @@ public:
       if (window_rect.right - window_rect.left < width || window_rect.bottom - window_rect.top < height) {
         window_rect.right = window_rect.left + width;
         window_rect.bottom = window_rect.top + height;
-        AdjustWindowRectEx(&window_rect, GetWindowLongA(handle, GWL_STYLE), false, GetWindowLongA(handle, GWL_EXSTYLE));
+        AdjustWindowRectEx(&window_rect, GetWindowLong(handle, GWL_STYLE), false, GetWindowLong(handle, GWL_EXSTYLE));
         SetWindowPos(handle, handle, 0, 0, window_rect.right - window_rect.left, window_rect.bottom - window_rect.top, SWP_NOMOVE | SWP_NOZORDER);
       }
 
