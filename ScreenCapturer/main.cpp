@@ -17,7 +17,7 @@
 typedef const char* C_CKSTRING;
 
 extern "C" {
-	__declspec(dllexport) IMod* BMLEntry(IBML* bml);
+  __declspec(dllexport) IMod* BMLEntry(IBML* bml);
 }
 
 inline std::wstring ConvertAnsiToWide(const std::string& str) {
@@ -36,8 +36,8 @@ BOOL FileExists(LPCTSTR szPath) {
 
 class ScreenCapturer : public IMod {
 private:
-	Gdiplus::GdiplusStartupInput gdiplus_startup_input;
-	ULONG_PTR gdiplus_token;
+  Gdiplus::GdiplusStartupInput gdiplus_startup_input;
+  ULONG_PTR gdiplus_token;
   asio::thread_pool pool = asio::thread_pool(4);
   CLSID png_clsid, jpeg_clsid;
   IProperty *prop_key{}, *prop_notify{}, *prop_jpeg{}, *prop_copy{}, *prop_copy_only{};
@@ -53,21 +53,20 @@ private:
     if (size == 0)
       return -1;  // Failure
 
-    Gdiplus::ImageCodecInfo* pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(malloc(size));
-    if (pImageCodecInfo == NULL)
+    auto pData = std::make_unique_for_overwrite<std::byte[]>(size);
+    if (!pData)
       return -1;  // Failure
+    auto pImageCodecInfo = (Gdiplus::ImageCodecInfo*) pData.get();
 
-    GetImageEncoders(num, size, pImageCodecInfo);
+    Gdiplus::GetImageEncoders(num, size, pImageCodecInfo);
 
     for (UINT j = 0; j < num; ++j) {
       if (wcscmp(pImageCodecInfo[j].MimeType, format) == 0) {
         *pClsid = pImageCodecInfo[j].Clsid;
-        free(pImageCodecInfo);
         return j;  // Success
       }
     }
 
-    free(pImageCodecInfo);
     return -1;  // Failure
   }
 
@@ -82,7 +81,11 @@ private:
 
 
 public:
-	ScreenCapturer(IBML* bml) : IMod(bml) {}
+  ScreenCapturer(IBML* bml) : IMod(bml) {
+    Gdiplus::GdiplusStartup(&gdiplus_token, &gdiplus_startup_input, nullptr);
+    GetEncoderClsid(L"image/png", &png_clsid);
+    GetEncoderClsid(L"image/jpeg", &jpeg_clsid);
+  }
 
 	virtual C_CKSTRING GetID() override { return "ScreenCapturer"; }
 	virtual C_CKSTRING GetVersion() override { return "0.0.1"; }
@@ -91,11 +94,8 @@ public:
 	virtual C_CKSTRING GetDescription() override { return "Take and save screenshots in-game."; }
 	DECLARE_BML_VERSION;
 
-	void OnLoad() override {
+  void OnLoad() override {
     CreateDirectory("..\\Screenshots", NULL);
-		Gdiplus::GdiplusStartup(&gdiplus_token, &gdiplus_startup_input, nullptr);
-    GetEncoderClsid(L"image/png", &png_clsid);
-    GetEncoderClsid(L"image/jpeg", &jpeg_clsid);
 
     auto *config = GetConfig();
     config->SetCategoryComment("Action", "Settings related to triggering the Screen Capturer.");
@@ -117,20 +117,20 @@ public:
     prop_copy_only->SetComment("Only copy screenshots to the clipboard without saving them on the disk. Requires CopyToClipboard to be true;");
 
     load_config_values();
-	}
+  }
 
-	void OnUnload() override {
+  void OnUnload() override {
     pool.join();
-		Gdiplus::GdiplusShutdown(gdiplus_token);
-	}
+    Gdiplus::GdiplusShutdown(gdiplus_token);
+  }
 
   void OnModifyConfig(C_CKSTRING category, C_CKSTRING key, IProperty* prop) override {
     load_config_values();
   }
 
-	void OnProcess() override {
-		if (m_bml->GetInputManager()->IsKeyPressed(screenshot_key)) {
-			auto handle = static_cast<HWND>(m_bml->GetCKContext()->GetMainWindow());
+  void OnProcess() override {
+    if (m_bml->GetInputManager()->IsKeyPressed(screenshot_key)) {
+      auto handle = static_cast<HWND>(m_bml->GetCKContext()->GetMainWindow());
       VxRect rect; m_bml->GetRenderContext()->GetWindowRect(rect);
       int width = rect.GetWidth();
       int height = rect.GetHeight();
@@ -138,7 +138,7 @@ public:
       if (window_rect.right - window_rect.left < width || window_rect.bottom - window_rect.top < height) {
         window_rect.right = window_rect.left + width;
         window_rect.bottom = window_rect.top + height;
-        AdjustWindowRectEx(&window_rect, GetWindowLongA(handle, GWL_STYLE), false, GetWindowLongA(handle, GWL_EXSTYLE));
+        AdjustWindowRectEx(&window_rect, GetWindowLong(handle, GWL_STYLE), false, GetWindowLong(handle, GWL_EXSTYLE));
         SetWindowPos(handle, handle, 0, 0, window_rect.right - window_rect.left, window_rect.bottom - window_rect.top, SWP_NOMOVE | SWP_NOZORDER);
       }
 
@@ -190,10 +190,10 @@ public:
         DeleteObject(hbmp);
         ReleaseDC(handle, hdcScreen);
       });
-		}
-	}
+    }
+  }
 };
 
 IMod* BMLEntry(IBML* bml) {
-	return new ScreenCapturer(bml);
+  return new ScreenCapturer(bml);
 }
