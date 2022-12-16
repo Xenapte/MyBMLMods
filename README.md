@@ -10,6 +10,7 @@ All my [Ballance Mod Loader Plus](https://github.com/doyaGu/BallanceModLoaderPlu
 | ---- | ---- |
 | [ScreenCapturer](ScreenCapturer/) | 2022-12-04 |
 | [PositionViewer](PositionViewer/) | 2022-12-10 |
+| [WindowSizeFixer](WindowSizeFixer/) | 2022-12-16 |
 
 ### Other mods created by me
 
