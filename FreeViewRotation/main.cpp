@@ -1,5 +1,7 @@
-#include <BML/BMLAll.h>
+#include <BMLPlus/BMLAll.h>
 // #include <numbers>
+
+typedef const char* C_CKSTRING;
 
 extern "C" {
   __declspec(dllexport) IMod* BMLEntry(IBML* bml);
@@ -57,11 +59,11 @@ private:
 public:
   FreeViewRotation(IBML* bml) : IMod(bml) {}
 
-  virtual CKSTRING GetID() override { return "FreeViewRotation"; }
-  virtual CKSTRING GetVersion() override { return "0.0.1"; }
-  virtual CKSTRING GetName() override { return "Free View Rotation"; }
-  virtual CKSTRING GetAuthor() override { return "BallanceBug"; }
-  virtual CKSTRING GetDescription() override { return "Tired of our fixed view rotation? Let's control it by using the mouse!"; }
+  virtual C_CKSTRING GetID() override { return "FreeViewRotation"; }
+  virtual C_CKSTRING GetVersion() override { return "0.0.1"; }
+  virtual C_CKSTRING GetName() override { return "Free View Rotation"; }
+  virtual C_CKSTRING GetAuthor() override { return "BallanceBug"; }
+  virtual C_CKSTRING GetDescription() override { return "Tired of our fixed view rotation? Let's control it by using the mouse!"; }
   DECLARE_BML_VERSION;
 
   void OnLoad() override {
@@ -131,7 +133,7 @@ public:
 
   void OnStartLevel() override { show_cursor(); }
   void OnUnpauseLevel() override {
-    m_bml->AddTimer(2u, [this] {
+    m_bml->AddTimer(2ul, [this] {
       show_cursor();
 
       if (!camera_need_reset)
