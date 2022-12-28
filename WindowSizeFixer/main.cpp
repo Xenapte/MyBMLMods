@@ -1,8 +1,6 @@
 #pragma once
 
 #include <BMLPlus/BMLAll.h>
-#include <thread>
-#include <memory>
 
 #define WIN32_MEAN_AND_LEAN
 #include <Windows.h>
