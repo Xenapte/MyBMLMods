@@ -1,5 +1,7 @@
 # My BML Mods
 
+[![State-of-the-art Shitcode](https://img.shields.io/static/v1?label=State-of-the-art&message=Shitcode&color=7B5804)](https://github.com/trekhleb/state-of-the-art-shitcode)
+
 All my [Ballance Mod Loader](https://github.com/Gamepiaynmo/BallanceModLoader) mods since 2022-12-04.
 
 ## Contents
@@ -12,6 +14,7 @@ All my [Ballance Mod Loader](https://github.com/Gamepiaynmo/BallanceModLoader) m
 | [PositionViewer](PositionViewer/) | 2022-12-10 |
 | [WindowSizeFixer](WindowSizeFixer/) | 2022-12-16 |
 | [FreeViewRotation](FreeViewRotation/) | 2022-12-22 |
+| [AdvancedTravelCam](AdvancedTravelCam/) | 2022-12-28 |
 
 ### Other mods created by me
 

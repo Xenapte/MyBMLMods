@@ -1,8 +1,6 @@
 #pragma once
 
 #include <BML/BMLAll.h>
-#include <thread>
-#include <memory>
 
 extern "C" {
   __declspec(dllexport) IMod* BMLEntry(IBML* bml);
