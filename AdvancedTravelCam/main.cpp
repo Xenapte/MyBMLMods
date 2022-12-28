@@ -74,6 +74,8 @@ void AdvancedTravelCam::OnProcess() {
 
   const auto boost_factor = (input_manager_->IsKeyDown(CKKEY_LCONTROL) ? 3 : 1);
 
+  // VxQuaternion::ToEulerAngles only produces angles in the range of (-pi/2, pi/2)
+  // so we have to calculate our yaw angle using atan2
   float yaw = 0;
   if (!translation_ref_) {
     VxQuaternion q;
@@ -103,6 +105,8 @@ void AdvancedTravelCam::OnProcess() {
   input_manager_->GetMouseRelativePosition(delta_mouse);
   remaining_mouse_distance_ += { -delta_mouse.x * mouse_sensitivity_, -delta_mouse.y * mouse_sensitivity_, 0 };
 
+  // interpolation: we calculate our translation distances
+  // and subtract them from our remaining distances
   VxVector translation_horizontal, translation_mouse;
   float translation_vertical{};
   if (cinematic_camera_) {
