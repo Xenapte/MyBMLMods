@@ -5,7 +5,7 @@ Advanced Travel Camera is an improved version for the built-in TravelCam mod of 
 ## Commands
 
 - `/advancedtravel`
-- '/+travel'
+- `/+travel`
 
 ## Controls
 
