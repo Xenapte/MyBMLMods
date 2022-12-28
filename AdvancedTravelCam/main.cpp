@@ -14,8 +14,8 @@ void AdvancedTravelCam::load_config_values() {
   mouse_sensitivity_ = prop_mouse_sensitivity_->GetFloat();
   translation_ref_ = prop_relative_direction_->GetBoolean() ? travel_cam_ : nullptr;
   cinematic_camera_ = prop_cinematic_camera_->GetBoolean();
-  cinematic_motion_speed_ = prop_cinematic_motion_speed_->GetFloat();
-  cinematic_mouse_speed_ = prop_cinematic_mouse_speed_->GetFloat();
+  cinematic_motion_speed_ = prop_cinematic_motion_speed_->GetFloat() * 0.06f;
+  cinematic_mouse_speed_ = prop_cinematic_mouse_speed_->GetFloat() * 0.06f;
 }
 
 void AdvancedTravelCam::OnLoad() {
@@ -72,6 +72,8 @@ void AdvancedTravelCam::OnProcess() {
   if (!(m_bml->IsPlaying() && is_in_travel_cam()))
     return;
 
+  const auto boost_factor = (input_manager_->IsKeyDown(CKKEY_LCONTROL) ? 3 : 1);
+
   float yaw = 0;
   if (!translation_ref_) {
     VxQuaternion q;
@@ -79,10 +81,10 @@ void AdvancedTravelCam::OnProcess() {
     const float siny_cosp = 2 * (q.w * q.z + q.x * q.y), cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
     yaw = std::atan2(siny_cosp, cosy_cosp);
   }
-  const auto delta_time = m_bml->GetTimeManager()->GetLastDeltaTime()
-      * (input_manager_->IsKeyDown(CKKEY_LCONTROL) ? 3 : 1),
-    delta_distance = horizontal_sensitivity_ * delta_time;
   const auto sin_yaw = std::sin(yaw), cos_yaw = std::cos(yaw);
+
+  const auto delta_time = m_bml->GetTimeManager()->GetLastDeltaTime(),
+    delta_distance = horizontal_sensitivity_ * delta_time * boost_factor;
   if (input_manager_->IsKeyDown(CKKEY_W))
     remaining_horizontal_distance_ += { delta_distance * sin_yaw, 0, delta_distance * cos_yaw };
   if (input_manager_->IsKeyDown(CKKEY_S))
@@ -91,10 +93,12 @@ void AdvancedTravelCam::OnProcess() {
     remaining_horizontal_distance_ += { -delta_distance * cos_yaw, 0, delta_distance * sin_yaw };
   if (input_manager_->IsKeyDown(CKKEY_D))
     remaining_horizontal_distance_ += { delta_distance * cos_yaw, 0, -delta_distance * sin_yaw };
+
   if (input_manager_->IsKeyDown(CKKEY_SPACE))
-    remaining_vertical_distance_ += vertical_sensitivity_ * delta_time;
+    remaining_vertical_distance_ += vertical_sensitivity_ * delta_time * boost_factor;
   if (input_manager_->IsKeyDown(CKKEY_LSHIFT))
-    remaining_vertical_distance_ += -vertical_sensitivity_ * delta_time;
+    remaining_vertical_distance_ += -vertical_sensitivity_ * delta_time * boost_factor;
+
   VxVector delta_mouse;
   input_manager_->GetMouseRelativePosition(delta_mouse);
   remaining_mouse_distance_ += { -delta_mouse.x * mouse_sensitivity_, -delta_mouse.y * mouse_sensitivity_, 0 };
@@ -102,9 +106,9 @@ void AdvancedTravelCam::OnProcess() {
   VxVector translation_horizontal, translation_mouse;
   float translation_vertical{};
   if (cinematic_camera_) {
-    translation_horizontal = Interpolate(cinematic_motion_speed_, {}, remaining_horizontal_distance_);
-    translation_vertical = std::lerp(0.0f, remaining_vertical_distance_, cinematic_motion_speed_);
-    translation_mouse = Interpolate(cinematic_mouse_speed_, {}, remaining_mouse_distance_);
+    translation_horizontal = Interpolate(cinematic_motion_speed_ * delta_time, {}, remaining_horizontal_distance_);
+    translation_vertical = std::lerp(0.0f, remaining_vertical_distance_, cinematic_motion_speed_ * delta_time);
+    translation_mouse = Interpolate(cinematic_mouse_speed_ * delta_time, {}, remaining_mouse_distance_);
   }
   else {
     translation_horizontal = remaining_horizontal_distance_;

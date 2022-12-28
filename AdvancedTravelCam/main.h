@@ -2,7 +2,6 @@
 
 #include <memory>
 #include <BML/BMLAll.h>
-#include "commands.h"
 
 extern "C" {
   __declspec(dllexport) IMod* BMLEntry(IBML* bml);
