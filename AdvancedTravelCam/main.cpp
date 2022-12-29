@@ -16,6 +16,7 @@ void AdvancedTravelCam::load_config_values() {
   cinematic_camera_ = prop_cinematic_camera_->GetBoolean();
   cinematic_motion_speed_ = prop_cinematic_motion_speed_->GetFloat() * 0.06f;
   cinematic_mouse_speed_ = prop_cinematic_mouse_speed_->GetFloat() * 0.06f;
+  travel_cam_->SetBackPlane(prop_maximum_view_distance_->GetFloat());
 }
 
 void AdvancedTravelCam::OnLoad() {
@@ -26,12 +27,14 @@ void AdvancedTravelCam::OnLoad() {
   auto config = GetConfig();
   config->SetCategoryComment("Quantities", "Related to movement/rotation sensitivities.");
   config->SetCategoryComment("Qualities", "Related to different behaviors.");
-  prop_horizontal_sensitivity_ = config->GetProperty("Quantities", "HorizontalSensitivity");
+  prop_horizontal_sensitivity_ = config->GetProperty("Quantities", "HorizontalSpeed");
   prop_horizontal_sensitivity_->SetDefaultFloat(0.05f);
-  prop_vertical_sensitivity_ = config->GetProperty("Quantities", "VerticalSensitivity");
+  prop_vertical_sensitivity_ = config->GetProperty("Quantities", "VerticalSpeed");
   prop_vertical_sensitivity_->SetDefaultFloat(0.04f);
   prop_mouse_sensitivity_ = config->GetProperty("Quantities", "MouseSensitivity");
-  prop_mouse_sensitivity_->SetDefaultFloat(2.2f);
+  prop_mouse_sensitivity_->SetDefaultFloat(3.2f);
+  prop_maximum_view_distance_ = config->GetProperty("Quantities", "MaximumViewDistance");
+  prop_maximum_view_distance_->SetDefaultFloat(4800.0f);
   prop_relative_direction_ = config->GetProperty("Qualities", "RelativeDirection");
   prop_relative_direction_->SetDefaultBoolean(true);
   prop_relative_direction_->SetComment(
@@ -39,7 +42,7 @@ void AdvancedTravelCam::OnLoad() {
     "If true, horizontal motion inputs will also affect the camera's vertical position."
   );
   prop_cinematic_camera_ = config->GetProperty("Qualities", "CinematicCamera");
-  prop_cinematic_camera_->SetDefaultBoolean(false);
+  prop_cinematic_camera_->SetDefaultBoolean(true);
   prop_cinematic_camera_->SetComment("Whether to enable cinematic camera (for smooth movement).");
   prop_cinematic_motion_speed_ = config->GetProperty("Quantities", "CinematicMotionSpeed");
   prop_cinematic_motion_speed_->SetDefaultFloat(0.04f);
