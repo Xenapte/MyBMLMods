@@ -16,7 +16,8 @@ private:
   decltype(m_bml->GetInputManager()) input_manager_{};
   IProperty *prop_horizontal_sensitivity_{}, *prop_vertical_sensitivity_{}, *prop_mouse_sensitivity_{},
     *prop_relative_direction_{}, *prop_cinematic_camera_{},
-    *prop_cinematic_motion_speed_{}, *prop_cinematic_mouse_speed_{};
+    *prop_cinematic_motion_speed_{}, *prop_cinematic_mouse_speed_{},
+    *prop_maximum_view_distance_{};
   float horizontal_sensitivity_{}, vertical_sensitivity_{}, mouse_sensitivity_{};
   bool cinematic_camera_{};
   float cinematic_motion_speed_{}, cinematic_mouse_speed_{};
@@ -31,7 +32,7 @@ public:
   AdvancedTravelCam(IBML* bml): IMod(bml) {}
 
   virtual C_CKSTRING GetID() override { return "AdvancedTravelCam"; }
-  virtual C_CKSTRING GetVersion() override { return "0.0.1"; }
+  virtual C_CKSTRING GetVersion() override { return "0.0.2"; }
   virtual C_CKSTRING GetName() override { return "Advanced Travel Camera"; }
   virtual C_CKSTRING GetAuthor() override { return "BallanceBug"; }
   virtual C_CKSTRING GetDescription() override {
