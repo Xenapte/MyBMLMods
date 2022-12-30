@@ -26,11 +26,14 @@ private:
 
   void load_config_values();
 
+  void clip_cursor();
+  void cancel_clip_cursor();
+
 public:
   AdvancedTravelCam(IBML* bml): IMod(bml) {}
 
   virtual CKSTRING GetID() override { return "AdvancedTravelCam"; }
-  virtual CKSTRING GetVersion() override { return "0.0.2"; }
+  virtual CKSTRING GetVersion() override { return "0.0.3"; }
   virtual CKSTRING GetName() override { return "Advanced Travel Camera"; }
   virtual CKSTRING GetAuthor() override { return "BallanceBug"; }
   virtual CKSTRING GetDescription() override {
@@ -43,9 +46,13 @@ public:
   }
   DECLARE_BML_VERSION;
 
+  void OnDead() override;
   void OnLoad() override;
   void OnModifyConfig(CKSTRING category, CKSTRING key, IProperty* prop) override;
+  void OnPauseLevel() override;
+  void OnUnpauseLevel() override;
   void OnPreResetLevel() override;
+  void OnPreEndLevel() override;
   void OnPreExitLevel() override;
   void OnPreNextLevel() override;
   void OnProcess() override;
