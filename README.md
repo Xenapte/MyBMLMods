@@ -15,6 +15,7 @@ All my [Ballance Mod Loader](https://github.com/Gamepiaynmo/BallanceModLoader) m
 | [WindowSizeFixer](WindowSizeFixer/) | 2022-12-16 |
 | [FreeViewRotation](FreeViewRotation/) | 2022-12-22 |
 | [AdvancedTravelCam](AdvancedTravelCam/) | 2022-12-28 |
+| [ImproperResetDetector](ImproperResetDetector/) | 2022-12-30 |
 
 ### Other mods created by me
 
