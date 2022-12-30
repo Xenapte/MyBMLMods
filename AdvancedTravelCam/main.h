@@ -1,5 +1,7 @@
 #pragma once
 
+#define WIN32_MEAN_AND_LEAN
+#include <Windows.h>
 #include <memory>
 #include <BMLPlus/BMLAll.h>
 
@@ -28,11 +30,14 @@ private:
 
   void load_config_values();
 
+  void clip_cursor();
+  void cancel_clip_cursor();
+
 public:
   AdvancedTravelCam(IBML* bml): IMod(bml) {}
 
   virtual C_CKSTRING GetID() override { return "AdvancedTravelCam"; }
-  virtual C_CKSTRING GetVersion() override { return "0.0.2"; }
+  virtual C_CKSTRING GetVersion() override { return "0.0.3"; }
   virtual C_CKSTRING GetName() override { return "Advanced Travel Camera"; }
   virtual C_CKSTRING GetAuthor() override { return "BallanceBug"; }
   virtual C_CKSTRING GetDescription() override {
@@ -45,9 +50,13 @@ public:
   }
   DECLARE_BML_VERSION;
 
+  void OnDead() override;
   void OnLoad() override;
   void OnModifyConfig(C_CKSTRING category, C_CKSTRING key, IProperty* prop) override;
+  void OnPauseLevel() override;
+  void OnUnpauseLevel() override;
   void OnPreResetLevel() override;
+  void OnPreEndLevel() override;
   void OnPreExitLevel() override;
   void OnPreNextLevel() override;
   void OnProcess() override;

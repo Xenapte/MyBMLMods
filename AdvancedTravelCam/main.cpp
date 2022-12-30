@@ -19,6 +19,21 @@ void AdvancedTravelCam::load_config_values() {
   travel_cam_->SetBackPlane(prop_maximum_view_distance_->GetFloat());
 }
 
+void AdvancedTravelCam::clip_cursor() {
+  const auto handle = static_cast<HWND>(m_bml->GetCKContext()->GetMainWindow());
+  RECT client_rect;
+  GetClientRect(handle, &client_rect);
+  POINT top_left_corner = { client_rect.left, client_rect.top };
+  ClientToScreen(handle, &top_left_corner);
+  client_rect = { .left = top_left_corner.x, .top = top_left_corner.y,
+    .right = client_rect.right + top_left_corner.x, .bottom = client_rect.bottom + top_left_corner.y };
+  ClipCursor(&client_rect);
+}
+
+void AdvancedTravelCam::cancel_clip_cursor() {
+  ClipCursor(NULL);
+}
+
 void AdvancedTravelCam::OnLoad() {
   m_bml->RegisterCommand(new TravelCommand(this));
   travel_cam_ = static_cast<CKCamera*>(m_bml->GetCKContext()->CreateObject(CKCID_CAMERA, "AdvancedTravelCam"));
@@ -58,9 +73,27 @@ void AdvancedTravelCam::OnModifyConfig(C_CKSTRING category, C_CKSTRING key, IPro
   load_config_values();
 }
 
+void AdvancedTravelCam::OnPauseLevel() {
+  if (is_in_travel_cam())
+    cancel_clip_cursor();
+}
+
+void AdvancedTravelCam::OnUnpauseLevel() {
+  if (is_in_travel_cam())
+    clip_cursor();
+}
+
 void AdvancedTravelCam::OnPreResetLevel() {
   if (is_in_travel_cam())
     exit_travel_cam(true);
+}
+
+void AdvancedTravelCam::OnPreEndLevel() {
+  OnPauseLevel();
+}
+
+void AdvancedTravelCam::OnDead() {
+  OnPauseLevel();
 }
 
 void AdvancedTravelCam::OnPreExitLevel() {
@@ -77,6 +110,8 @@ void AdvancedTravelCam::OnProcess() {
 
   const auto boost_factor = (input_manager_->IsKeyDown(CKKEY_LCONTROL) ? 3 : 1);
 
+  // VxQuaternion::ToEulerAngles only produces angles in the range of (-pi/2, pi/2)
+  // so we have to calculate our yaw angle using atan2
   float yaw = 0;
   if (!translation_ref_) {
     VxQuaternion q;
@@ -106,6 +141,8 @@ void AdvancedTravelCam::OnProcess() {
   input_manager_->GetMouseRelativePosition(delta_mouse);
   remaining_mouse_distance_ += { -delta_mouse.x * mouse_sensitivity_, -delta_mouse.y * mouse_sensitivity_, 0 };
 
+  // interpolation: we calculate our translation distances
+  // and subtract them from our remaining distances
   VxVector translation_horizontal, translation_mouse;
   float translation_vertical{};
   if (cinematic_camera_) {
@@ -140,6 +177,7 @@ void AdvancedTravelCam::enter_travel_cam() {
   m_bml->GetRenderContext()->AttachViewpointToCamera(travel_cam_);
   m_bml->GetGroupByName("HUD_sprites")->Show(CKHIDE);
   m_bml->GetGroupByName("LifeBalls")->Show(CKHIDE);
+  clip_cursor();
 
   is_in_travel_cam_ = true;
   m_bml->SendIngameMessage("Entered Advanced Travel Camera");
@@ -151,6 +189,11 @@ void AdvancedTravelCam::exit_travel_cam(bool local_state_only) {
     m_bml->GetGroupByName("HUD_sprites")->Show();
     m_bml->GetGroupByName("LifeBalls")->Show();
   }
+
+  remaining_horizontal_distance_ = {};
+  remaining_vertical_distance_ = {};
+  remaining_mouse_distance_ = {};
+  cancel_clip_cursor();
 
   is_in_travel_cam_ = false;
   m_bml->SendIngameMessage("Exited Advanced Travel Camera");
