@@ -97,7 +97,7 @@ public:
   virtual CKSTRING GetVersion() override { return "3.4.4"; }
   virtual CKSTRING GetName() override { return "Improper Reset Detector"; }
   virtual CKSTRING GetAuthor() override { return "BallanceBug"; }
-  virtual CKSTRING GetDescription() override { return "Detects improper resets in BMMO matches"; }
+  virtual CKSTRING GetDescription() override { return "Detects improper resets (caused by pressing the Reset/Suicide hotkey) in BMMO matches"; }
   DECLARE_BML_VERSION;
 
   // initialize here since not all mods are loaded by the time of OnLoad
