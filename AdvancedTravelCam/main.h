@@ -19,7 +19,8 @@ private:
   IProperty *prop_horizontal_sensitivity_{}, *prop_vertical_sensitivity_{}, *prop_mouse_sensitivity_{},
     *prop_relative_direction_{}, *prop_cinematic_camera_{},
     *prop_cinematic_motion_speed_{}, *prop_cinematic_mouse_speed_{},
-    *prop_maximum_view_distance_{};
+    *prop_maximum_view_distance_{},
+    *prop_commands_[2]{};
   float horizontal_sensitivity_{}, vertical_sensitivity_{}, mouse_sensitivity_{};
   bool cinematic_camera_{};
   float cinematic_motion_speed_{}, cinematic_mouse_speed_{};
@@ -37,7 +38,7 @@ public:
   AdvancedTravelCam(IBML* bml): IMod(bml) {}
 
   virtual C_CKSTRING GetID() override { return "AdvancedTravelCam"; }
-  virtual C_CKSTRING GetVersion() override { return "0.0.3"; }
+  virtual C_CKSTRING GetVersion() override { return "0.0.4"; }
   virtual C_CKSTRING GetName() override { return "Advanced Travel Camera"; }
   virtual C_CKSTRING GetAuthor() override { return "BallanceBug"; }
   virtual C_CKSTRING GetDescription() override {
@@ -67,12 +68,15 @@ public:
   inline bool is_in_travel_cam() { return is_in_travel_cam_; }
   inline bool is_playing() { return m_bml->IsPlaying(); }
 
+  inline std::string get_command_1() { return prop_commands_[0]->GetString(); }
+  inline std::string get_command_2() { return prop_commands_[1]->GetString(); }
+
   class TravelCommand: public ICommand {
   private:
-    AdvancedTravelCam *mod;
+    AdvancedTravelCam *mod_;
 
-    std::string GetName() override { return "advancedtravel"; };
-    std::string GetAlias() override { return "+travel"; };
+    std::string GetName() override { return mod_->get_command_1(); };
+    std::string GetAlias() override { return mod_->get_command_2(); };
     std::string GetDescription() override { return "Enter Advanced Travel Camera."; };
     bool IsCheat() override { return false; };
 
@@ -81,6 +85,6 @@ public:
     const std::vector<std::string> GetTabCompletion(IBML* bml, const std::vector<std::string>& args) override;
 
   public:
-    TravelCommand(AdvancedTravelCam *mod): mod(mod) {}
+    TravelCommand(AdvancedTravelCam *mod): mod_(mod) {}
   };
 };

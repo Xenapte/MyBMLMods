@@ -7,7 +7,7 @@
 #include <Windows.h>
 #include <fstream>
 #include <chrono>
-#include "client.h"
+#include "exported_client.h"
 
 extern "C" {
   __declspec(dllexport) IMod* BMLEntry(IBML* bml);
@@ -19,7 +19,7 @@ class ImproperResetDetector : public IMod {
 private:
   static constexpr const char *config_directory = "..\\ModLoader\\Config",
     *config_path = "..\\ModLoader\\Config\\BML.cfg";
-  client *mmo_client{};
+  bmmo::exported::client *mmo_client{};
   bool init = false;
   HANDLE hChangeEvent;
   HANDLE hStopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -108,7 +108,7 @@ public:
 
     const auto mod_size = m_bml->GetModCount();
     for (int i = 0; i < mod_size; ++i) {
-      if (mmo_client = dynamic_cast<client*>(m_bml->GetMod(i))) {
+      if (mmo_client = dynamic_cast<decltype(mmo_client)>(m_bml->GetMod(i))) {
         GetLogger()->Info("Presence of BMMO client detected, got pointer at %#010x", mmo_client);
         load_hotkey();
         init_config_listener();
@@ -120,12 +120,13 @@ public:
   }
 
   void OnProcess() override {
-    if (!m_bml->IsPlaying() || !mmo_client)
+    if (!m_bml->IsPlaying() || !mmo_client || mmo_client->is_spectator())
       return;
     
     if (mmo_client->connected() && m_bml->GetInputManager()->IsKeyPressed(reset_hotkey)) {
-      bmmo::public_warning_msg msg{};
-      msg.text_content = mmo_client->get_own_name() + " just pressed the Reset hotkey!";
+      bmmo::public_notification_msg msg{};
+      msg.type = bmmo::public_notification_type::Warning;
+      msg.text_content = mmo_client->get_client_name() + " just pressed the Reset hotkey!";
       msg.serialize();
       mmo_client->send(msg.raw.str().data(), msg.size(), k_nSteamNetworkingSend_Reliable);
     }

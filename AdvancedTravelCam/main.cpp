@@ -35,7 +35,6 @@ void AdvancedTravelCam::cancel_clip_cursor() {
 }
 
 void AdvancedTravelCam::OnLoad() {
-  m_bml->RegisterCommand(new TravelCommand(this));
   travel_cam_ = static_cast<CKCamera*>(m_bml->GetCKContext()->CreateObject(CKCID_CAMERA, "AdvancedTravelCam"));
   input_manager_ = m_bml->GetInputManager();
 
@@ -65,8 +64,19 @@ void AdvancedTravelCam::OnLoad() {
   prop_cinematic_mouse_speed_ = config->GetProperty("Quantities", "CinematicMouseSpeed");
   prop_cinematic_mouse_speed_->SetDefaultFloat(0.04f);
   prop_cinematic_mouse_speed_->SetComment("Must be between 0 and 1.");
+  for (auto i = 0; i < sizeof(prop_commands_) / sizeof(prop_cinematic_camera_); ++i) {
+    prop_commands_[i] = config->GetProperty("Qualities", ("Command" + std::to_string(i + 1)).c_str());
+    prop_commands_[i]->SetComment(
+      "Command for activating Advanced Travel Camera. Must be in lowercase. "
+      "A restart is needed for the change to take effect."
+    );
+  }
+  prop_commands_[0]->SetDefaultString("advancedtravel");
+  prop_commands_[1]->SetDefaultString("+travel");
 
   load_config_values();
+
+  m_bml->RegisterCommand(new TravelCommand(this));
 }
 
 void AdvancedTravelCam::OnModifyConfig(C_CKSTRING category, C_CKSTRING key, IProperty* prop) {
@@ -110,16 +120,21 @@ void AdvancedTravelCam::OnProcess() {
 
   const auto boost_factor = (input_manager_->IsKeyDown(CKKEY_LCONTROL) ? 3 : 1);
 
-  // VxQuaternion::ToEulerAngles only produces angles in the range of (-pi/2, pi/2)
-  // so we have to calculate our yaw angle using atan2
-  float yaw = 0;
+  float sin_yaw = 0, cos_yaw = 1;
   if (!translation_ref_) {
-    VxQuaternion q;
-    travel_cam_->GetQuaternion(&q);
-    const float siny_cosp = 2 * (q.w * q.z + q.x * q.y), cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
-    yaw = std::atan2(siny_cosp, cosy_cosp);
+    /*  VxQuaternion q;
+        travel_cam_->GetQuaternion(&q);
+        const float siny_cosp = 2 * (q.w * q.z + q.x * q.y), cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+        yaw = std::atan2(siny_cosp, cosy_cosp);  */
+    VxVector orient;
+    travel_cam_->GetOrientation(&orient, NULL);
+    // yaw = std::atan2(orient.x, orient.z);
+    const auto square_sum = orient.x * orient.x + orient.z * orient.z;
+    if (square_sum != 0) {
+      const auto factor = std::sqrt(1 / square_sum);
+      sin_yaw = orient.x * factor, cos_yaw = orient.z * factor;
+    }
   }
-  const auto sin_yaw = std::sin(yaw), cos_yaw = std::cos(yaw);
 
   const auto delta_time = m_bml->GetTimeManager()->GetLastDeltaTime(),
     delta_distance = horizontal_sensitivity_ * delta_time * boost_factor;
@@ -200,19 +215,19 @@ void AdvancedTravelCam::exit_travel_cam(bool local_state_only) {
 }
 
 void AdvancedTravelCam::TravelCommand::Execute(IBML* bml, const std::vector<std::string>& args) {
-  if (!mod->is_playing())
+  if (!mod_->is_playing())
     return;
   if (args.size() >= 2) {
     if (args[1] == "true" || args[1] == "on")
-      mod->enter_travel_cam();
+      mod_->enter_travel_cam();
     else
-      mod->exit_travel_cam();
+      mod_->exit_travel_cam();
     return;
   }
-  if (mod->is_in_travel_cam())
-    mod->exit_travel_cam();
+  if (mod_->is_in_travel_cam())
+    mod_->exit_travel_cam();
   else
-    mod->enter_travel_cam();
+    mod_->enter_travel_cam();
 }
 
 const std::vector<std::string> AdvancedTravelCam::TravelCommand::GetTabCompletion(IBML* bml, const std::vector<std::string>& args) {
