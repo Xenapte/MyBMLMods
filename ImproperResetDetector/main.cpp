@@ -124,7 +124,8 @@ public:
     if (mmo_client->connected() && m_bml->GetInputManager()->IsKeyPressed(reset_hotkey)) {
       bmmo::public_notification_msg msg{};
       msg.type = bmmo::public_notification_type::Warning;
-      msg.text_content = mmo_client->get_client_name() + " just pressed the Reset hotkey!";
+      msg.text_content = mmo_client->get_client_name() + " just pressed the Reset hotkey at "
+        + mmo_client->get_current_map().get_display_name() + "!";
       msg.serialize();
       mmo_client->send(msg.raw.str().data(), msg.size(), k_nSteamNetworkingSend_Reliable);
     }
