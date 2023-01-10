@@ -1,6 +1,6 @@
 #pragma once
 
-#include <BML/BMLAll.h>
+#include <BMLPlus/BMLAll.h>
 #include <chrono>
 #include <filesystem>
 #include <fstream>
@@ -8,6 +8,8 @@
 #ifdef min
 #undef min
 #endif // min
+
+typedef const char* C_CKSTRING;
 
 extern "C" {
   __declspec(dllexport) IMod* BMLEntry(IBML* bml);
@@ -28,11 +30,11 @@ protected:
 public:
   DummySpeedrunAnnouncer(IBML* bml, time_t max_time) : IMod(bml), max_time(max_time) {}
 
-  virtual CKSTRING GetID() override { return "BMMOSpeedrunAnnouncer"; }
-  virtual CKSTRING GetVersion() override { return "0.0.2"; }
-  virtual CKSTRING GetName() override { return "BMMO Speedrun Announcer"; }
-  virtual CKSTRING GetAuthor() override { return "BallanceBug"; }
-  virtual CKSTRING GetDescription() override {
+  virtual C_CKSTRING GetID() override { return "BMMOSpeedrunAnnouncer"; }
+  virtual C_CKSTRING GetVersion() override { return "0.0.2"; }
+  virtual C_CKSTRING GetName() override { return "BMMO Speedrun Announcer"; }
+  virtual C_CKSTRING GetAuthor() override { return "BallanceBug"; }
+  virtual C_CKSTRING GetDescription() override {
     return "Announces your valid speedrun records while you're online with BMMO.";
   }
   DECLARE_BML_VERSION;
