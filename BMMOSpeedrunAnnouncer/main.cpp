@@ -17,6 +17,7 @@ constexpr const char* lock_path = "..\\ModLoader\\Config\\BMMOSpeedrun.lock";
 
 class DummySpeedrunAnnouncer : public IMod {
 protected:
+  bool init = false;
   const time_t max_time;
   std::string format_time(time_t timepoint) {
     std::string time_string(32, '\0');
@@ -28,36 +29,41 @@ public:
   DummySpeedrunAnnouncer(IBML* bml, time_t max_time) : IMod(bml), max_time(max_time) {}
 
   virtual CKSTRING GetID() override { return "BMMOSpeedrunAnnouncer"; }
-  virtual CKSTRING GetVersion() override { return "0.0.1"; }
+  virtual CKSTRING GetVersion() override { return "0.0.2"; }
   virtual CKSTRING GetName() override { return "BMMO Speedrun Announcer"; }
   virtual CKSTRING GetAuthor() override { return "BallanceBug"; }
-  virtual CKSTRING GetDescription() override { return "Announces your speedrun records"; }
+  virtual CKSTRING GetDescription() override {
+    return "Announces your valid speedrun records while you're online with BMMO.";
+  }
   DECLARE_BML_VERSION;
 
-  virtual void OnLoad() override {
-    GetLogger()->Warn("Lock (%s) expired at %s. "
-                      "SpeedrunAnnouncer will be disabled until the lock is removed.",
-                      lock_path, format_time(max_time).c_str());
+  virtual void OnPostStartMenu() override {
+    if (init)
+      return;
+    char warning[160];
+    snprintf(warning, sizeof(warning), "[WARNING]: Lock (%s) expired at %s.",
+             lock_path, format_time(max_time).c_str());
+    m_bml->SendIngameMessage(warning);
+    m_bml->SendIngameMessage("    SpeedrunAnnouncer will be disabled until the lock is removed.");
+    init = true;
   }
 };
 
 class BMMOSpeedrunAnnouncer : public DummySpeedrunAnnouncer {
 private:
-  bool init = false, counting = false, valid = false, level_finished = false;
+  bool counting = false, valid = false, level_finished = false;
   float speedrun_time = 0;
   bmmo::exported::client *mmo_client{};
   CKTimeManager *time_manager{};
   CKDataArray *array_energy{}, *array_all_level{};
 
   inline void update_valid_status() {
-    if (valid)
+    if (valid && mmo_client)
       valid = mmo_client->connected() && !m_bml->IsCheatEnabled();
   }
 
 public:
   using DummySpeedrunAnnouncer::DummySpeedrunAnnouncer;
-
-  virtual void OnLoad() override {}
 
   void OnPostStartMenu() override {
     if (init)
@@ -77,6 +83,8 @@ public:
 
     array_energy = m_bml->GetArrayByName("Energy");
     array_all_level = m_bml->GetArrayByName("AllLevel");
+
+    init = true;
   }
 
   void OnProcess() override {
