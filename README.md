@@ -17,6 +17,7 @@ All my [Ballance Mod Loader](https://github.com/Gamepiaynmo/BallanceModLoader) m
 | [AdvancedTravelCam](AdvancedTravelCam/) | 2022-12-28 |
 | [ImproperResetDetector](ImproperResetDetector/) | 2022-12-30 |
 | [BMMOSpeedrunAnnouncer](BMMOSpeedrunAnnouncer/) | 2023-01-10 |
+| [ViewDistanceEditor](ViewDistanceEditor/) | 2023-02-16 |
 
 ### Other mods created by me
 
