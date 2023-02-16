@@ -1,6 +1,8 @@
 #pragma once
 
-#include <BML/BMLAll.h>
+#include <BMLPlus/BMLAll.h>
+
+typedef const char* C_CKSTRING;
 
 extern "C" {
   __declspec(dllexport) IMod* BMLEntry(IBML* bml);
@@ -29,11 +31,11 @@ class ViewDistanceEditor : public IMod {
 public:
   ViewDistanceEditor(IBML* bml) : IMod(bml) {}
 
-  virtual CKSTRING GetID() override { return "ViewDistanceEditor"; }
-  virtual CKSTRING GetVersion() override { return "0.0.1"; }
-  virtual CKSTRING GetName() override { return "View Distance Editor"; }
-  virtual CKSTRING GetAuthor() override { return "BallanceBug"; }
-  virtual CKSTRING GetDescription() override { return "View Distance Editor."; }
+  virtual C_CKSTRING GetID() override { return "ViewDistanceEditor"; }
+  virtual C_CKSTRING GetVersion() override { return "0.0.1"; }
+  virtual C_CKSTRING GetName() override { return "View Distance Editor"; }
+  virtual C_CKSTRING GetAuthor() override { return "BallanceBug"; }
+  virtual C_CKSTRING GetDescription() override { return "View Distance Editor."; }
   DECLARE_BML_VERSION;
 
   void OnLoad() override {
@@ -60,7 +62,7 @@ public:
     set_view_distance(view_distance);
   }
 
-  void OnModifyConfig(CKSTRING category, CKSTRING key, IProperty* prop) override {
+  void OnModifyConfig(C_CKSTRING category, C_CKSTRING key, IProperty* prop) override {
     notify = true;
     view_distance = prop->GetFloat();
     set_view_distance(view_distance);
