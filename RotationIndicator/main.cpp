@@ -46,7 +46,7 @@ public:
 
     XString indicator_file("Rotation_Indicator.nmo");
     pm->ResolveFileName(indicator_file, data_path_index);
-    m_bml->SendIngameMessage(indicator_file.CStr());
+    //m_bml->SendIngameMessage(indicator_file.CStr());
     ExecuteBB::ObjectLoad(indicator_file.CStr(), false);
 
     indicator = static_cast<CK3dObject*>(m_bml->GetCKContext()->GetObjectByName("___Rotation_Indicator"));

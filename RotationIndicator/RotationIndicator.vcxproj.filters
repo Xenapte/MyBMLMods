@@ -19,4 +19,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Rotation_Indicator.nmo">
+      <Filter>资源文件</Filter>
+    </None>
+    <None Include="README.md">
+      <Filter>资源文件</Filter>
+    </None>
+  </ItemGroup>
 </Project>
