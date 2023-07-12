@@ -17,6 +17,15 @@ void AdvancedTravelCam::load_config_values() {
   cinematic_motion_speed_ = prop_cinematic_motion_speed_->GetFloat() * 0.06f;
   cinematic_mouse_speed_ = prop_cinematic_mouse_speed_->GetFloat() * 0.06f;
   travel_cam_->SetBackPlane(prop_maximum_view_distance_->GetFloat());
+
+  key_forward = prop_key_forward->GetKey();
+  key_backward = prop_key_backward->GetKey();
+  key_left = prop_key_left->GetKey();
+  key_right = prop_key_right->GetKey();
+  key_up = prop_key_up->GetKey();
+  key_down = prop_key_down->GetKey();
+  key_boost = prop_key_boost->GetKey();
+  key_zoom = prop_key_zoom->GetKey();
 }
 
 void AdvancedTravelCam::clip_cursor() {
@@ -34,6 +43,41 @@ void AdvancedTravelCam::cancel_clip_cursor() {
   ClipCursor(NULL);
 }
 
+std::pair<CK3dEntity*, CKPICKRESULT> AdvancedTravelCam::pick_screen() {
+  auto ctx = m_bml->GetRenderContext();
+  Vx2DVector cursor_pos; input_manager_->GetMousePosition(cursor_pos, false);
+
+  // CKRenderContext::Pick is different on Virtools 2.1
+  // so we have to do this to get the actual data
+  CKPICKRESULT pick_result;
+  CKRenderObject* dest_obj;
+  if (!(dest_obj = ctx->Pick(int(cursor_pos.x), int(cursor_pos.y), &pick_result)))
+    return {};
+  if (pick_result.Sprite)
+    return {};
+
+  return { static_cast<CK3dEntity*>(dest_obj), pick_result };
+}
+
+std::pair<float, float> AdvancedTravelCam::get_distance_factors() {
+  float sin_yaw = 0, cos_yaw = 1;
+  if (!translation_ref_) {
+    /*  VxQuaternion q;
+        travel_cam_->GetQuaternion(&q);
+        const float siny_cosp = 2 * (q.w * q.z + q.x * q.y), cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+        yaw = std::atan2(siny_cosp, cosy_cosp);  */
+    VxVector orient;
+    travel_cam_->GetOrientation(&orient, NULL);
+    // yaw = std::atan2(orient.x, orient.z);
+    const auto square_sum = orient.x * orient.x + orient.z * orient.z;
+    if (square_sum != 0) {
+      const auto factor = std::sqrt(1 / square_sum);
+      sin_yaw = orient.x * factor, cos_yaw = orient.z * factor;
+    }
+  }
+  return { sin_yaw, cos_yaw };
+}
+
 void AdvancedTravelCam::OnLoad() {
   travel_cam_ = static_cast<CKCamera*>(m_bml->GetCKContext()->CreateObject(CKCID_CAMERA, "AdvancedTravelCam"));
   input_manager_ = m_bml->GetInputManager();
@@ -41,12 +85,13 @@ void AdvancedTravelCam::OnLoad() {
   auto config = GetConfig();
   config->SetCategoryComment("Quantities", "Related to movement/rotation sensitivities.");
   config->SetCategoryComment("Qualities", "Related to different behaviors.");
+  config->SetCategoryComment("Controls", "Additional notes: use the left mouse button to pick a point (cancellable with the right button) on the screen and move the camera to it.");
   prop_horizontal_sensitivity_ = config->GetProperty("Quantities", "HorizontalSpeed");
   prop_horizontal_sensitivity_->SetDefaultFloat(0.05f);
   prop_vertical_sensitivity_ = config->GetProperty("Quantities", "VerticalSpeed");
   prop_vertical_sensitivity_->SetDefaultFloat(0.04f);
   prop_mouse_sensitivity_ = config->GetProperty("Quantities", "MouseSensitivity");
-  prop_mouse_sensitivity_->SetDefaultFloat(3.2f);
+  prop_mouse_sensitivity_->SetDefaultFloat(3.0f);
   prop_maximum_view_distance_ = config->GetProperty("Quantities", "MaximumViewDistance");
   prop_maximum_view_distance_->SetDefaultFloat(4800.0f);
   prop_relative_direction_ = config->GetProperty("Qualities", "RelativeDirection");
@@ -74,6 +119,25 @@ void AdvancedTravelCam::OnLoad() {
   prop_commands_[0]->SetDefaultString("advancedtravel");
   prop_commands_[1]->SetDefaultString("+travel");
 
+  prop_key_forward = config->GetProperty("Controls", "MoveForward");
+  prop_key_forward->SetDefaultKey(CKKEY_W);
+  prop_key_backward = config->GetProperty("Controls", "MoveBackward");
+  prop_key_backward->SetDefaultKey(CKKEY_S);
+  prop_key_left = config->GetProperty("Controls", "MoveLeft");
+  prop_key_left->SetDefaultKey(CKKEY_A);
+  prop_key_right = config->GetProperty("Controls", "MoveRight");
+  prop_key_right->SetDefaultKey(CKKEY_D);
+  prop_key_up = config->GetProperty("Controls", "Ascend");
+  prop_key_up->SetDefaultKey(CKKEY_SPACE);
+  prop_key_down = config->GetProperty("Controls", "Descend");
+  prop_key_down->SetDefaultKey(CKKEY_LSHIFT);
+  prop_key_boost = config->GetProperty("Controls", "SpeedBoost");
+  prop_key_boost->SetDefaultKey(CKKEY_LCONTROL);
+  prop_key_boost->SetComment("Gives your camera a movement speed boost.");
+  prop_key_zoom = config->GetProperty("Controls", "Zoom");
+  prop_key_zoom->SetDefaultKey(CKKEY_Z);
+  prop_key_zoom->SetComment("Zooms in your camera (adjustable with the scroll wheel!).");
+
   load_config_values();
 
   m_bml->RegisterCommand(new TravelCommand(this));
@@ -89,8 +153,13 @@ void AdvancedTravelCam::OnPauseLevel() {
 }
 
 void AdvancedTravelCam::OnUnpauseLevel() {
-  if (is_in_travel_cam())
-    clip_cursor();
+  if (!is_in_travel_cam())
+    return;
+  clip_cursor();
+  if (GetCursor() == cursor_cross)
+    m_bml->AddTimer(2ul, [this] {
+      input_manager_->ShowCursor(true);
+    });
 }
 
 void AdvancedTravelCam::OnPreResetLevel() {
@@ -118,43 +187,81 @@ void AdvancedTravelCam::OnProcess() {
   if (!(m_bml->IsPlaying() && is_in_travel_cam()))
     return;
 
-  const auto boost_factor = (input_manager_->IsKeyDown(CKKEY_LCONTROL) ? 3 : 1);
+  const auto boost_factor = (input_manager_->IsKeyDown(key_boost) ? 3 : 1);
 
-  float sin_yaw = 0, cos_yaw = 1;
-  if (!translation_ref_) {
-    /*  VxQuaternion q;
-        travel_cam_->GetQuaternion(&q);
-        const float siny_cosp = 2 * (q.w * q.z + q.x * q.y), cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
-        yaw = std::atan2(siny_cosp, cosy_cosp);  */
-    VxVector orient;
-    travel_cam_->GetOrientation(&orient, NULL);
-    // yaw = std::atan2(orient.x, orient.z);
-    const auto square_sum = orient.x * orient.x + orient.z * orient.z;
-    if (square_sum != 0) {
-      const auto factor = std::sqrt(1 / square_sum);
-      sin_yaw = orient.x * factor, cos_yaw = orient.z * factor;
-    }
-  }
+  auto [sin_yaw, cos_yaw] = get_distance_factors();
 
   const auto delta_time = m_bml->GetTimeManager()->GetLastDeltaTime(),
     delta_distance = horizontal_sensitivity_ * delta_time * boost_factor;
-  if (input_manager_->IsKeyDown(CKKEY_W))
+  if (input_manager_->IsKeyDown(key_forward))
     remaining_horizontal_distance_ += { delta_distance * sin_yaw, 0, delta_distance * cos_yaw };
-  if (input_manager_->IsKeyDown(CKKEY_S))
+  if (input_manager_->IsKeyDown(key_backward))
     remaining_horizontal_distance_ += { -delta_distance * sin_yaw, 0, -delta_distance * cos_yaw };
-  if (input_manager_->IsKeyDown(CKKEY_A))
+  if (input_manager_->IsKeyDown(key_left))
     remaining_horizontal_distance_ += { -delta_distance * cos_yaw, 0, delta_distance * sin_yaw };
-  if (input_manager_->IsKeyDown(CKKEY_D))
+  if (input_manager_->IsKeyDown(key_right))
     remaining_horizontal_distance_ += { delta_distance * cos_yaw, 0, -delta_distance * sin_yaw };
 
-  if (input_manager_->IsKeyDown(CKKEY_SPACE))
+  if (input_manager_->IsKeyDown(key_up))
     remaining_vertical_distance_ += vertical_sensitivity_ * delta_time * boost_factor;
-  if (input_manager_->IsKeyDown(CKKEY_LSHIFT))
+  if (input_manager_->IsKeyDown(key_down))
     remaining_vertical_distance_ += -vertical_sensitivity_ * delta_time * boost_factor;
 
   VxVector delta_mouse;
   input_manager_->GetMouseRelativePosition(delta_mouse);
+  if (input_manager_->GetCursorVisibility()) delta_mouse = {};
+
+  float current_fov = travel_cam_->GetFov();
+  if (input_manager_->IsKeyPressed(key_zoom))
+    desired_fov_ = default_fov_ / 5;
+  if (input_manager_->IsKeyReleased(key_zoom))
+    desired_fov_ = default_fov_;
+  if (input_manager_->IsKeyDown(key_zoom) && delta_mouse.z != 0)
+    desired_fov_ = std::clamp(delta_mouse.z > 0 ? desired_fov_ * 0.88f : desired_fov_ / 0.88f,
+                              default_fov_ * 0.04f, default_fov_ * 1.2f);
+  if (float fov_diff = std::abs(current_fov - desired_fov_) / desired_fov_; fov_diff != 0)
+    travel_cam_->SetFov(fov_diff > 0.0005f
+                        ? std::lerp(current_fov, desired_fov_, delta_time * 0.0125f)
+                        : desired_fov_);
+
+  delta_mouse *= (current_fov / default_fov_);
+
   remaining_mouse_distance_ += { -delta_mouse.x * mouse_sensitivity_, -delta_mouse.y * mouse_sensitivity_, 0 };
+
+  if (input_manager_->IsMouseClicked(CK_MOUSEBUTTON_LEFT)) {
+    if (input_manager_->GetCursorVisibility()) {
+      auto picked = pick_screen();
+      if (!picked.first)
+        return;
+
+      char msg[256];
+      snprintf(msg, sizeof(msg), "\"%s\" selected", picked.first->GetName());
+      m_bml->SendIngameMessage(msg);
+
+      VxVector dest_pos, cam_pos, pos_diff;
+      picked.first->Transform(&dest_pos, picked.second.IntersectionPoint);
+      travel_cam_->GetPosition(&cam_pos);
+      travel_cam_->LookAt(dest_pos);
+      std::tie(sin_yaw, cos_yaw) = get_distance_factors();
+
+      pos_diff = (dest_pos - cam_pos) * ((picked.second.Distance - 60.0f) / picked.second.Distance);
+      auto horizontal_distance = Vx2DVector(pos_diff.x, pos_diff.z).Magnitude();
+
+      remaining_horizontal_distance_ = { horizontal_distance * sin_yaw, 0, horizontal_distance * cos_yaw };
+      remaining_vertical_distance_ = translation_ref_ ? 0 : pos_diff.y;
+      remaining_mouse_distance_ = {};
+
+      SetCursor(cursor_arrow);
+    }
+    else {
+      SetCursor(cursor_cross);
+    }
+    input_manager_->ShowCursor(!input_manager_->GetCursorVisibility());
+  }
+  if (input_manager_->IsMouseClicked(CK_MOUSEBUTTON_RIGHT) && input_manager_->GetCursorVisibility()) {
+    input_manager_->ShowCursor(false);
+    SetCursor(cursor_arrow);
+  }
 
   // interpolation: we calculate our translation distances
   // and subtract them from our remaining distances
@@ -188,7 +295,8 @@ void AdvancedTravelCam::enter_travel_cam() {
   int width, height;
   cam->GetAspectRatio(width, height);
   travel_cam_->SetAspectRatio(width, height);
-  travel_cam_->SetFov(cam->GetFov());
+  default_fov_ = desired_fov_ = cam->GetFov();
+  travel_cam_->SetFov(default_fov_);
   m_bml->GetRenderContext()->AttachViewpointToCamera(travel_cam_);
   m_bml->GetGroupByName("HUD_sprites")->Show(CKHIDE);
   m_bml->GetGroupByName("LifeBalls")->Show(CKHIDE);

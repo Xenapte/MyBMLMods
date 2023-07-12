@@ -20,12 +20,17 @@ private:
     *prop_relative_direction_{}, *prop_cinematic_camera_{},
     *prop_cinematic_motion_speed_{}, *prop_cinematic_mouse_speed_{},
     *prop_maximum_view_distance_{},
-    *prop_commands_[2]{};
+    *prop_commands_[2]{},
+    *prop_key_forward{}, *prop_key_backward{}, *prop_key_left{}, *prop_key_right{},
+    *prop_key_up{}, *prop_key_down{}, *prop_key_boost{}, *prop_key_zoom{};
+  CKKEYBOARD key_forward{}, key_backward{}, key_left{}, key_right{},
+    key_up{}, key_down{}, key_boost{}, key_zoom{};
   float horizontal_sensitivity_{}, vertical_sensitivity_{}, mouse_sensitivity_{};
   bool cinematic_camera_{};
   float cinematic_motion_speed_{}, cinematic_mouse_speed_{};
   VxVector remaining_horizontal_distance_{}, remaining_mouse_distance_{};
   float remaining_vertical_distance_{};
+  float default_fov_{}, desired_fov_{};
 
   CKCamera *get_ingame_cam();
 
@@ -33,21 +38,20 @@ private:
 
   void clip_cursor();
   void cancel_clip_cursor();
+  const HCURSOR cursor_arrow = LoadCursor(NULL, IDC_ARROW), cursor_cross = LoadCursor(NULL, IDC_CROSS);
+
+  std::pair<CK3dEntity*, CKPICKRESULT> pick_screen();
+  std::pair<float, float> get_distance_factors();
 
 public:
   AdvancedTravelCam(IBML* bml): IMod(bml) {}
 
   virtual C_CKSTRING GetID() override { return "AdvancedTravelCam"; }
-  virtual C_CKSTRING GetVersion() override { return "0.0.4"; }
+  virtual C_CKSTRING GetVersion() override { return "0.1.0"; }
   virtual C_CKSTRING GetName() override { return "Advanced Travel Camera"; }
   virtual C_CKSTRING GetAuthor() override { return "BallanceBug"; }
   virtual C_CKSTRING GetDescription() override {
-    return
-      "Advanced Travel Camera\n\n"
-      "Controls:\n"
-      "W/A/S/D: horizontal movement;\n"
-      "Space/Shift: vertical movement;\n"
-      "Additionally, the left Ctrl key can be used for a movement speed boost.";
+    return "Advanced Travel Camera";
   }
   DECLARE_BML_VERSION;
 
