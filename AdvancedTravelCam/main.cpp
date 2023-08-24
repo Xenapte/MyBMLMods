@@ -51,7 +51,14 @@ std::pair<CK3dEntity*, CKPICKRESULT> AdvancedTravelCam::pick_screen() {
   // so we have to do this to get the actual data
   CKPICKRESULT pick_result;
   CKRenderObject* dest_obj;
-  if (!(dest_obj = ctx->Pick(int(cursor_pos.x), int(cursor_pos.y), reinterpret_cast<VxIntersectionDesc*>(&pick_result))))
+  if (!(dest_obj = ctx->Pick(int(cursor_pos.x), int(cursor_pos.y),
+#ifndef USING_BML_PLUS
+                             reinterpret_cast<VxIntersectionDesc*>(&pick_result)
+#else
+                             &pick_result
+#endif
+
+      )))
     return {};
   if (pick_result.Sprite)
     return {};
@@ -143,7 +150,7 @@ void AdvancedTravelCam::OnLoad() {
   m_bml->RegisterCommand(new TravelCommand(this));
 }
 
-void AdvancedTravelCam::OnModifyConfig(CKSTRING category, CKSTRING key, IProperty* prop) {
+void AdvancedTravelCam::OnModifyConfig(iCKSTRING category, iCKSTRING key, IProperty* prop) {
   load_config_values();
 }
 
@@ -157,7 +164,7 @@ void AdvancedTravelCam::OnUnpauseLevel() {
     return;
   clip_cursor();
   if (GetCursor() == cursor_cross)
-    m_bml->AddTimer(2u, [this] {
+    m_bml->AddTimer(CKDWORD(2), [this] {
       input_manager_->ShowCursor(true);
     });
 }

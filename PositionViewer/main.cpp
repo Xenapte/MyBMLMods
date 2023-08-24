@@ -1,6 +1,10 @@
 #pragma once
 
-#include <BML/BMLAll.h>
+#include "../bml_includes.hpp"
+#ifndef WIN32_MEAN_AND_LEAN
+#define WIN32_MEAN_AND_LEAN
+#include <Windows.h>
+#endif // !WIN32_MEAN_AND_LEAN
 #include <thread>
 #include <memory>
 
@@ -30,11 +34,11 @@ class PositionViewer : public IMod {
 public:
   PositionViewer(IBML* bml) : IMod(bml) {}
 
-  virtual CKSTRING GetID() override { return "PositionViewer"; }
-  virtual CKSTRING GetVersion() override { return "0.0.1"; }
-  virtual CKSTRING GetName() override { return "Position Viewer"; }
-  virtual CKSTRING GetAuthor() override { return "BallanceBug"; }
-  virtual CKSTRING GetDescription() override { return "Displays the coordinates of your player ball."; }
+  virtual iCKSTRING GetID() override { return "PositionViewer"; }
+  virtual iCKSTRING GetVersion() override { return "0.0.1"; }
+  virtual iCKSTRING GetName() override { return "Position Viewer"; }
+  virtual iCKSTRING GetAuthor() override { return "BallanceBug"; }
+  virtual iCKSTRING GetDescription() override { return "Displays the coordinates of your player ball."; }
   DECLARE_BML_VERSION;
 
   void OnProcess() override {
@@ -78,7 +82,7 @@ public:
     load_config();
   }
 
-  void OnModifyConfig(CKSTRING category, CKSTRING key, IProperty* prop) override {
+  void OnModifyConfig(iCKSTRING category, iCKSTRING key, IProperty* prop) override {
     load_config();
     if (sprite) {
       hide_ball_pos();

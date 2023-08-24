@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include <BML/BMLAll.h>
+#include "../bml_includes.hpp"
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
@@ -12,6 +12,7 @@ extern "C" {
   __declspec(dllexport) IMod* BMLEntry(IBML* bml);
 }
 
+#ifndef USING_BML_PLUS
 typedef struct CKPICKRESULT {
   VxVector IntersectionPoint;  // Intersection Point in the Object referential coordinates
   VxVector IntersectionNormal; // Normal  at the Intersection Point
@@ -20,6 +21,7 @@ typedef struct CKPICKRESULT {
   int FaceIndex;               // Index of the face where the intersection occurred
   CK_ID Sprite;                // If there was a sprite at the picked coordinates, ID of this sprite
 } CKPICKRESULT;
+#endif
 
 class AdvancedTravelCam: public IMod {
 private:
@@ -56,18 +58,18 @@ private:
 public:
   AdvancedTravelCam(IBML* bml): IMod(bml) {}
 
-  virtual CKSTRING GetID() override { return "AdvancedTravelCam"; }
-  virtual CKSTRING GetVersion() override { return "0.1.0"; }
-  virtual CKSTRING GetName() override { return "Advanced Travel Camera"; }
-  virtual CKSTRING GetAuthor() override { return "BallanceBug"; }
-  virtual CKSTRING GetDescription() override {
+  virtual iCKSTRING GetID() override { return "AdvancedTravelCam"; }
+  virtual iCKSTRING GetVersion() override { return "0.1.0"; }
+  virtual iCKSTRING GetName() override { return "Advanced Travel Camera"; }
+  virtual iCKSTRING GetAuthor() override { return "BallanceBug"; }
+  virtual iCKSTRING GetDescription() override {
     return "Advanced Travel Camera";
   }
   DECLARE_BML_VERSION;
 
   void OnDead() override;
   void OnLoad() override;
-  void OnModifyConfig(CKSTRING category, CKSTRING key, IProperty* prop) override;
+  void OnModifyConfig(iCKSTRING category, iCKSTRING key, IProperty* prop) override;
   void OnPauseLevel() override;
   void OnUnpauseLevel() override;
   void OnPreResetLevel() override;

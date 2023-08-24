@@ -4,7 +4,7 @@
 #include <asio/post.hpp>
 #include <asio/thread_pool.hpp>
 
-#include <BML/BMLAll.h>
+#include "../bml_includes.hpp"
 
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
@@ -85,11 +85,11 @@ public:
     GetEncoderClsid(L"image/jpeg", &jpeg_clsid);
   }
 
-  virtual CKSTRING GetID() override { return "ScreenCapturer"; }
-  virtual CKSTRING GetVersion() override { return "0.0.1"; }
-  virtual CKSTRING GetName() override { return "Screen Capturer"; }
-  virtual CKSTRING GetAuthor() override { return "BallanceBug"; }
-  virtual CKSTRING GetDescription() override { return "Take and save screenshots in-game."; }
+  virtual iCKSTRING GetID() override { return "ScreenCapturer"; }
+  virtual iCKSTRING GetVersion() override { return "0.0.1"; }
+  virtual iCKSTRING GetName() override { return "Screen Capturer"; }
+  virtual iCKSTRING GetAuthor() override { return "BallanceBug"; }
+  virtual iCKSTRING GetDescription() override { return "Take and save screenshots in-game."; }
   DECLARE_BML_VERSION;
 
   void OnLoad() override {
@@ -122,7 +122,7 @@ public:
     Gdiplus::GdiplusShutdown(gdiplus_token);
   }
 
-  void OnModifyConfig(CKSTRING category, CKSTRING key, IProperty* prop) override {
+  void OnModifyConfig(iCKSTRING category, iCKSTRING key, IProperty* prop) override {
     load_config_values();
   }
 

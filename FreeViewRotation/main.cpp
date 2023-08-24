@@ -1,4 +1,9 @@
-#include <BML/BMLAll.h>
+#include "../bml_includes.hpp"
+#ifndef WIN32_MEAN_AND_LEAN
+#define WIN32_MEAN_AND_LEAN
+#include <Windows.h>
+#endif // !WIN32_MEAN_AND_LEAN
+
 // #include <numbers>
 
 extern "C" {
@@ -35,6 +40,21 @@ private:
     // why (sizeof(v) == 4) here ?????
   }
 
+  void clip_cursor() {
+    const auto handle = static_cast<HWND>(m_bml->GetCKContext()->GetMainWindow());
+    RECT client_rect;
+    GetClientRect(handle, &client_rect);
+    POINT top_left_corner = { client_rect.left, client_rect.top };
+    ClientToScreen(handle, &top_left_corner);
+    client_rect = { .left = top_left_corner.x, .top = top_left_corner.y,
+      .right = client_rect.right + top_left_corner.x, .bottom = client_rect.bottom + top_left_corner.y };
+    ClipCursor(&client_rect);
+  }
+
+  void cancel_clip_cursor() {
+    ClipCursor(NULL);
+  }
+
   void load_config_values() {
     enabled = prop_enabled->GetBoolean();
     cursor_enabled = prop_cursor_enabled->GetBoolean();
@@ -57,11 +77,11 @@ private:
 public:
   FreeViewRotation(IBML* bml) : IMod(bml) {}
 
-  virtual CKSTRING GetID() override { return "FreeViewRotation"; }
-  virtual CKSTRING GetVersion() override { return "0.0.1"; }
-  virtual CKSTRING GetName() override { return "Free View Rotation"; }
-  virtual CKSTRING GetAuthor() override { return "BallanceBug"; }
-  virtual CKSTRING GetDescription() override { return "Tired of our fixed view rotation? Let's control it by using the mouse!"; }
+  virtual iCKSTRING GetID() override { return "FreeViewRotation"; }
+  virtual iCKSTRING GetVersion() override { return "0.0.1"; }
+  virtual iCKSTRING GetName() override { return "Free View Rotation"; }
+  virtual iCKSTRING GetAuthor() override { return "BallanceBug"; }
+  virtual iCKSTRING GetDescription() override { return "Tired of our fixed view rotation? Let's control it by using the mouse!"; }
   DECLARE_BML_VERSION;
 
   void OnLoad() override {
@@ -129,9 +149,10 @@ public:
         m_bml->SendIngameMessage(t); */
   }
 
-  void OnStartLevel() override { show_cursor(); }
+  void OnStartLevel() override { show_cursor(); clip_cursor(); }
   void OnUnpauseLevel() override {
-    m_bml->AddTimer(2u, [this] {
+    clip_cursor();
+    m_bml->AddTimer(CKDWORD(2), [this] {
       show_cursor();
 
       if (!camera_need_reset)
@@ -145,6 +166,10 @@ public:
         ->GetPosition(&position);
       cam->SetPosition(position);
     });
+  }
+
+  void OnPauseLevel() override {
+    cancel_clip_cursor();
   }
 
   void OnProcess() override {

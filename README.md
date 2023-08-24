@@ -2,7 +2,7 @@
 
 [![State-of-the-art Shitcode](https://img.shields.io/static/v1?label=State-of-the-art&message=Shitcode&color=7B5804)](https://github.com/trekhleb/state-of-the-art-shitcode)
 
-All my [Ballance Mod Loader](https://github.com/Gamepiaynmo/BallanceModLoader) mods since 2022-12-04.
+All my [Ballance Mod Loader](https://github.com/Gamepiaynmo/BallanceModLoader) or [Ballance Mod Loader Plus](https://github.com/doyaGu/BallanceModLoaderPlus) mods since 2022-12-04.
 
 ## Contents
 

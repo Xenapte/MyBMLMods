@@ -1,6 +1,6 @@
 #pragma once
 
-#include <BML/BMLAll.h>
+#include "../bml_includes.hpp"
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif // !WIN32_LEAN_AND_MEAN
@@ -93,11 +93,11 @@ private:
 public:
   ImproperResetDetector(IBML* bml) : IMod(bml) {}
 
-  virtual CKSTRING GetID() override { return "ImproperResetDetector"; }
-  virtual CKSTRING GetVersion() override { return "3.4.4"; }
-  virtual CKSTRING GetName() override { return "Improper Reset Detector"; }
-  virtual CKSTRING GetAuthor() override { return "BallanceBug"; }
-  virtual CKSTRING GetDescription() override { return "Detects improper resets (caused by pressing the Reset/Suicide hotkey) in BMMO matches"; }
+  virtual iCKSTRING GetID() override { return "ImproperResetDetector"; }
+  virtual iCKSTRING GetVersion() override { return "3.4.4"; }
+  virtual iCKSTRING GetName() override { return "Improper Reset Detector"; }
+  virtual iCKSTRING GetAuthor() override { return "BallanceBug"; }
+  virtual iCKSTRING GetDescription() override { return "Detects improper resets (caused by pressing the Reset/Suicide hotkey) in BMMO matches"; }
   DECLARE_BML_VERSION;
 
   // initialize here since not all mods are loaded by the time of OnLoad

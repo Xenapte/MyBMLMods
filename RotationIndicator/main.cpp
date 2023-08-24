@@ -1,6 +1,6 @@
 #pragma once
 
-#include <BML/BMLAll.h>
+#include "../bml_includes.hpp"
 
 extern "C" {
   __declspec(dllexport) IMod* BMLEntry(IBML* bml);
@@ -18,11 +18,11 @@ class RotationIndicator : public IMod {
 public:
   RotationIndicator(IBML* bml) : IMod(bml) {}
 
-  virtual CKSTRING GetID() override { return "RotationIndicator"; }
-  virtual CKSTRING GetVersion() override { return "0.0.1"; }
-  virtual CKSTRING GetName() override { return "Rotation Indicator"; }
-  virtual CKSTRING GetAuthor() override { return "BallanceBug"; }
-  virtual CKSTRING GetDescription() override { return "Indicates your ball's rotation."; }
+  virtual iCKSTRING GetID() override { return "RotationIndicator"; }
+  virtual iCKSTRING GetVersion() override { return "0.0.1"; }
+  virtual iCKSTRING GetName() override { return "Rotation Indicator"; }
+  virtual iCKSTRING GetAuthor() override { return "BallanceBug"; }
+  virtual iCKSTRING GetDescription() override { return "Indicates your ball's rotation."; }
   DECLARE_BML_VERSION;
 
   void OnPostStartMenu() override {
@@ -36,7 +36,8 @@ public:
       pm->GetCategoryName(i, name);
       m_bml->SendIngameMessage(name.CStr());
     }*/
-    int data_path_index = pm->GetCategoryIndex("Data Paths");
+    XString data_path_index_name = "Data Paths";
+    int data_path_index = pm->GetCategoryIndex(data_path_index_name);
 
     /*for (int i = 0; i < pm->GetPathCount(data_path_index); ++i) {
       XString name;

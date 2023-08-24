@@ -1,6 +1,10 @@
 #pragma once
 
-#include <BML/BMLAll.h>
+#include "../bml_includes.hpp"
+#ifndef WIN32_MEAN_AND_LEAN
+#define WIN32_MEAN_AND_LEAN
+#include <Windows.h>
+#endif // !WIN32_MEAN_AND_LEAN
 
 extern "C" {
   __declspec(dllexport) IMod* BMLEntry(IBML* bml);
@@ -11,11 +15,11 @@ class WindowSizeFixer : public IMod {
 public:
   WindowSizeFixer(IBML* bml) : IMod(bml) {}
 
-  virtual CKSTRING GetID() override { return "WindowSizeFixer"; }
-  virtual CKSTRING GetVersion() override { return "0.0.1"; }
-  virtual CKSTRING GetName() override { return "Window Size Fixer"; }
-  virtual CKSTRING GetAuthor() override { return "BallanceBug"; }
-  virtual CKSTRING GetDescription() override {
+  virtual iCKSTRING GetID() override { return "WindowSizeFixer"; }
+  virtual iCKSTRING GetVersion() override { return "0.0.1"; }
+  virtual iCKSTRING GetName() override { return "Window Size Fixer"; }
+  virtual iCKSTRING GetAuthor() override { return "BallanceBug"; }
+  virtual iCKSTRING GetDescription() override {
     return "A mod for fixing your window size in windowed mode.\n\n"
     "The original Ballance Player has a problem where the window size is slightly"
     " smaller than the actual display size in windowed mode so that the bottom-right"

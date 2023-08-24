@@ -1,6 +1,6 @@
 #pragma once
 
-#include <BML/BMLAll.h>
+#include "../bml_includes.hpp"
 #include <chrono>
 #include <filesystem>
 #include <fstream>
@@ -28,11 +28,11 @@ protected:
 public:
   DummySpeedrunAnnouncer(IBML* bml, time_t max_time) : IMod(bml), max_time(max_time) {}
 
-  virtual CKSTRING GetID() override { return "BMMOSpeedrunAnnouncer"; }
-  virtual CKSTRING GetVersion() override { return "0.0.2"; }
-  virtual CKSTRING GetName() override { return "BMMO Speedrun Announcer"; }
-  virtual CKSTRING GetAuthor() override { return "BallanceBug"; }
-  virtual CKSTRING GetDescription() override {
+  virtual iCKSTRING GetID() override { return "BMMOSpeedrunAnnouncer"; }
+  virtual iCKSTRING GetVersion() override { return "0.0.2"; }
+  virtual iCKSTRING GetName() override { return "BMMO Speedrun Announcer"; }
+  virtual iCKSTRING GetAuthor() override { return "BallanceBug"; }
+  virtual iCKSTRING GetDescription() override {
     return "Announces your valid speedrun records while you're online with BMMO.";
   }
   DECLARE_BML_VERSION;
