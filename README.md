@@ -19,8 +19,11 @@ All my [Ballance Mod Loader](https://github.com/Gamepiaynmo/BallanceModLoader) o
 | [BMMOSpeedrunAnnouncer](BMMOSpeedrunAnnouncer/) | 2023-01-10 |
 | [ViewDistanceEditor](ViewDistanceEditor/) | 2023-02-16 |
 | [RotationIndicator](RotationIndicator/) | 2023-03-03 |
+| [CursorClipper](CursorClipper/) | 2023-08-24 |
 
-### Other mods created by me
+## Mods not in this repository
+
+### Created by me
 
 | Name | Time |
 | ---- | ---- |
@@ -29,3 +32,7 @@ All my [Ballance Mod Loader](https://github.com/Gamepiaynmo/BallanceModLoader) o
 | [RealTimeMeter](https://github.com/Xenapte/BallanceRealTimeMeter) | 2022-09-24 |
 | [FirstPersonCamera](https://github.com/Xenapte/BallanceFirstPersonCamera) | 2022-10-12 |
 | [SysInfoDisplay](https://github.com/Xenapte/BallanceSysInfoDisplay) | 2022-11-07 |
+
+### Other mods I'm currently working on
+
+- [Swung0x48 - Ballance Massively Multiplayer Online](https://github.com/Swung0x48/BallanceMMO)

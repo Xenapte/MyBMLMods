@@ -40,21 +40,6 @@ private:
     // why (sizeof(v) == 4) here ?????
   }
 
-  void clip_cursor() {
-    const auto handle = static_cast<HWND>(m_bml->GetCKContext()->GetMainWindow());
-    RECT client_rect;
-    GetClientRect(handle, &client_rect);
-    POINT top_left_corner = { client_rect.left, client_rect.top };
-    ClientToScreen(handle, &top_left_corner);
-    client_rect = { .left = top_left_corner.x, .top = top_left_corner.y,
-      .right = client_rect.right + top_left_corner.x, .bottom = client_rect.bottom + top_left_corner.y };
-    ClipCursor(&client_rect);
-  }
-
-  void cancel_clip_cursor() {
-    ClipCursor(NULL);
-  }
-
   void load_config_values() {
     enabled = prop_enabled->GetBoolean();
     cursor_enabled = prop_cursor_enabled->GetBoolean();
@@ -149,9 +134,8 @@ public:
         m_bml->SendIngameMessage(t); */
   }
 
-  void OnStartLevel() override { show_cursor(); clip_cursor(); }
+  void OnStartLevel() override { show_cursor(); }
   void OnUnpauseLevel() override {
-    clip_cursor();
     m_bml->AddTimer(CKDWORD(2), [this] {
       show_cursor();
 
@@ -166,10 +150,6 @@ public:
         ->GetPosition(&position);
       cam->SetPosition(position);
     });
-  }
-
-  void OnPauseLevel() override {
-    cancel_clip_cursor();
   }
 
   void OnProcess() override {
