@@ -8,6 +8,7 @@ IMod* BMLEntry(IBML* bml) {
 }
 
 VOID CALLBACK WinEventProcCallback(HWINEVENTHOOK hWinEventHook, DWORD dwEvent, HWND hwnd, LONG idObject, LONG idChild, DWORD dwEventThread, DWORD dwmsEventTime) {
+  if (!mod) return;
   mod->clip_cursor(false);
 }
 
