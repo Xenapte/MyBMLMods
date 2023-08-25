@@ -202,6 +202,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="main.hpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="README.md" />
