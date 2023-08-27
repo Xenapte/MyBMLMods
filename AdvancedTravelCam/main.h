@@ -48,8 +48,6 @@ private:
 
   void load_config_values();
 
-  void clip_cursor();
-  void cancel_clip_cursor();
   const HCURSOR cursor_arrow = LoadCursor(NULL, IDC_ARROW), cursor_cross = LoadCursor(NULL, IDC_CROSS);
 
   std::pair<CK3dEntity*, CKPICKRESULT> pick_screen();
@@ -59,7 +57,7 @@ public:
   AdvancedTravelCam(IBML* bml): IMod(bml) {}
 
   virtual iCKSTRING GetID() override { return "AdvancedTravelCam"; }
-  virtual iCKSTRING GetVersion() override { return "0.1.0"; }
+  virtual iCKSTRING GetVersion() override { return "0.1.1"; }
   virtual iCKSTRING GetName() override { return "Advanced Travel Camera"; }
   virtual iCKSTRING GetAuthor() override { return "BallanceBug"; }
   virtual iCKSTRING GetDescription() override {
@@ -70,7 +68,6 @@ public:
   void OnDead() override;
   void OnLoad() override;
   void OnModifyConfig(iCKSTRING category, iCKSTRING key, IProperty* prop) override;
-  void OnPauseLevel() override;
   void OnUnpauseLevel() override;
   void OnPreResetLevel() override;
   void OnPreEndLevel() override;

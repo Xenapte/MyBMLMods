@@ -28,21 +28,6 @@ void AdvancedTravelCam::load_config_values() {
   key_zoom = prop_key_zoom->GetKey();
 }
 
-void AdvancedTravelCam::clip_cursor() {
-  const auto handle = static_cast<HWND>(m_bml->GetCKContext()->GetMainWindow());
-  RECT client_rect;
-  GetClientRect(handle, &client_rect);
-  POINT top_left_corner = { client_rect.left, client_rect.top };
-  ClientToScreen(handle, &top_left_corner);
-  client_rect = { .left = top_left_corner.x, .top = top_left_corner.y,
-    .right = client_rect.right + top_left_corner.x, .bottom = client_rect.bottom + top_left_corner.y };
-  ClipCursor(&client_rect);
-}
-
-void AdvancedTravelCam::cancel_clip_cursor() {
-  ClipCursor(NULL);
-}
-
 std::pair<CK3dEntity*, CKPICKRESULT> AdvancedTravelCam::pick_screen() {
   auto ctx = m_bml->GetRenderContext();
   Vx2DVector cursor_pos; input_manager_->GetMousePosition(cursor_pos, false);
@@ -154,15 +139,9 @@ void AdvancedTravelCam::OnModifyConfig(iCKSTRING category, iCKSTRING key, IPrope
   load_config_values();
 }
 
-void AdvancedTravelCam::OnPauseLevel() {
-  if (is_in_travel_cam())
-    cancel_clip_cursor();
-}
-
 void AdvancedTravelCam::OnUnpauseLevel() {
   if (!is_in_travel_cam())
     return;
-  clip_cursor();
   if (GetCursor() == cursor_cross)
     m_bml->AddTimer(CKDWORD(2), [this] {
       input_manager_->ShowCursor(true);
@@ -307,7 +286,6 @@ void AdvancedTravelCam::enter_travel_cam() {
   m_bml->GetRenderContext()->AttachViewpointToCamera(travel_cam_);
   m_bml->GetGroupByName("HUD_sprites")->Show(CKHIDE);
   m_bml->GetGroupByName("LifeBalls")->Show(CKHIDE);
-  clip_cursor();
 
   is_in_travel_cam_ = true;
   m_bml->SendIngameMessage("Entered Advanced Travel Camera");
@@ -323,7 +301,6 @@ void AdvancedTravelCam::exit_travel_cam(bool local_state_only) {
   remaining_horizontal_distance_ = {};
   remaining_vertical_distance_ = {};
   remaining_mouse_distance_ = {};
-  cancel_clip_cursor();
 
   is_in_travel_cam_ = false;
   m_bml->SendIngameMessage("Exited Advanced Travel Camera");
