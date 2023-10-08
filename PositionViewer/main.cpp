@@ -7,16 +7,8 @@
 #endif // !WIN32_MEAN_AND_LEAN
 #include <thread>
 #include <memory>
+#include "../utils.hpp"
 
-// Windows 7 does not have GetDpiForSystem
-typedef UINT(WINAPI* GetDpiForSystemPtr) (void);
-GetDpiForSystemPtr const get_system_dpi = [] {
-  auto hMod = GetModuleHandleW(L"user32.dll");
-  if (hMod) {
-    return (GetDpiForSystemPtr)GetProcAddress(hMod, "GetDpiForSystem");
-  }
-  return (GetDpiForSystemPtr)nullptr;
-}();
 
 extern "C" {
   __declspec(dllexport) IMod* BMLEntry(IBML* bml);
@@ -33,13 +25,14 @@ class PositionViewer : public IMod {
   VxVector last_pos{}, ref_pos{};
   float last_speed = 0, last_speed_timestamp = 0;
   float next_pos_update = 0, next_speed_update = 0;
+  utils utils;
 
   auto get_player_ball() {
     return static_cast<CK3dObject*>(current_level_array->GetElementObject(0, 1));
   }
 
 public:
-  PositionViewer(IBML* bml) : IMod(bml) {}
+  PositionViewer(IBML* bml) : IMod(bml), utils(bml) {}
 
   virtual iCKSTRING GetID() override { return "PositionViewer"; }
   virtual iCKSTRING GetVersion() override { return "0.1.0"; }
@@ -147,7 +140,7 @@ private:
 
   void load_config() {
     y_pos = prop_y->GetFloat();
-    font_size = (int)std::round(m_bml->GetRenderContext()->GetHeight() / (768.0f / 119) * prop_font_size->GetFloat() / ((get_system_dpi == nullptr) ? 96 : get_system_dpi()));
+    font_size = utils.get_bgui_font_size(prop_font_size->GetFloat());
     pos_interval = prop_pos_interval->GetFloat();
     speed_interval = prop_speed_interval->GetFloat();
   }

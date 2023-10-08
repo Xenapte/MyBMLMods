@@ -29,9 +29,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "common", "common", "{55B8DA9A-9E1E-4D5A-A7C1-1BC6806B1E8B}"
 	ProjectSection(SolutionItems) = preProject
 		bml_includes.hpp = bml_includes.hpp
+		utils.hpp = utils.hpp
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CursorClipper", "CursorClipper\CursorClipper.vcxproj", "{045538C4-61E4-4E91-A03E-AFD9873D1101}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KeystrokeViewer", "KeystrokeViewer\KeystrokeViewer.vcxproj", "{1236C95F-95F3-486C-B759-A10DCFD3A0AF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -163,6 +166,18 @@ Global
 		{045538C4-61E4-4E91-A03E-AFD9873D1101}.Release-BMLPlus|x64.Build.0 = Release-BMLPlus|x64
 		{045538C4-61E4-4E91-A03E-AFD9873D1101}.Release-BMLPlus|x86.ActiveCfg = Release-BMLPlus|Win32
 		{045538C4-61E4-4E91-A03E-AFD9873D1101}.Release-BMLPlus|x86.Build.0 = Release-BMLPlus|Win32
+		{1236C95F-95F3-486C-B759-A10DCFD3A0AF}.Debug|x64.ActiveCfg = Debug|x64
+		{1236C95F-95F3-486C-B759-A10DCFD3A0AF}.Debug|x64.Build.0 = Debug|x64
+		{1236C95F-95F3-486C-B759-A10DCFD3A0AF}.Debug|x86.ActiveCfg = Debug|Win32
+		{1236C95F-95F3-486C-B759-A10DCFD3A0AF}.Debug|x86.Build.0 = Debug|Win32
+		{1236C95F-95F3-486C-B759-A10DCFD3A0AF}.Release|x64.ActiveCfg = Release|x64
+		{1236C95F-95F3-486C-B759-A10DCFD3A0AF}.Release|x64.Build.0 = Release|x64
+		{1236C95F-95F3-486C-B759-A10DCFD3A0AF}.Release|x86.ActiveCfg = Release|Win32
+		{1236C95F-95F3-486C-B759-A10DCFD3A0AF}.Release|x86.Build.0 = Release|Win32
+		{1236C95F-95F3-486C-B759-A10DCFD3A0AF}.Release-BMLPlus|x64.ActiveCfg = Release|x64
+		{1236C95F-95F3-486C-B759-A10DCFD3A0AF}.Release-BMLPlus|x64.Build.0 = Release|x64
+		{1236C95F-95F3-486C-B759-A10DCFD3A0AF}.Release-BMLPlus|x86.ActiveCfg = Release-BMLPlus|Win32
+		{1236C95F-95F3-486C-B759-A10DCFD3A0AF}.Release-BMLPlus|x86.Build.0 = Release-BMLPlus|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
