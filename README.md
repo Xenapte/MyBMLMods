@@ -21,6 +21,7 @@ All my [Ballance Mod Loader](https://github.com/Gamepiaynmo/BallanceModLoader) o
 | [RotationIndicator](RotationIndicator/) | 2023-03-03 |
 | [CursorClipper](CursorClipper/) | 2023-08-24 |
 | [KeystrokeViewer](KeystrokeViewer/) | 2023-10-08 |
+| [Blackout](Blackout/) | 2023-10-17 |
 
 ## Mods not in this repository
 

@@ -73,4 +73,10 @@ public:
   static inline std::string utf8_to_ansi(const std::string& str) {
     return wide_to_ansi(utf8_to_wide(str));
   }
+
+  static inline std::string to_lower(std::string data) {
+    std::transform(data.begin(), data.end(), data.begin(),
+                   [](unsigned char c) { return std::tolower(c); });
+    return data;
+  }
 };
