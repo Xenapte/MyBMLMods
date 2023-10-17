@@ -11,7 +11,7 @@ extern "C" {
 class Blackout : public IMod {
   bool init = false;
   CKDataArray *current_level_array{}, *all_level_array{};
-  CKLight *light{};
+  CKLight *light{}, *light_bottom{};
   IProperty *prop_light{}, *prop_full_dark{};
   inline static const std::unordered_set<std::string> exempt_list {
     "tower_floor_top_flat_illu", "laterne_verlauf", "laterne_schatten", "laterne_glas",
@@ -38,18 +38,19 @@ class Blackout : public IMod {
 
   void darken_material(CKMaterial *mat) {
     if (exempt_list.contains(utils::to_lower(mat->GetName()))) return;
-    mat->SetEmissive(get_darkened_color(mat->GetEmissive(), 0.15f));
+    mat->SetEmissive(get_darkened_color(mat->GetEmissive(), 0.125f));
   }
 
   void load_config() {
     light->Active(prop_light->GetBoolean());
+    //light_bottom->Active(prop_light->GetBoolean());
   }
 
 public:
   Blackout(IBML *bml) : IMod(bml) {}
 
   virtual iCKSTRING GetID() override { return "Blackout"; }
-  virtual iCKSTRING GetVersion() override { return "0.0.1"; }
+  virtual iCKSTRING GetVersion() override { return "0.0.2"; }
   virtual iCKSTRING GetName() override { return "Blackout"; }
   virtual iCKSTRING GetAuthor() override { return "BallanceBug"; }
   virtual iCKSTRING GetDescription() override { return "Darkens everything in your game."; }
@@ -87,23 +88,26 @@ public:
 
     light = static_cast<decltype(light)>(m_bml->GetCKContext()->CreateObject(CKCID_LIGHT, "Blackout_Light"));
     light->SetType(VX_LIGHTPOINT);
-    light->SetColor({ 192, 192, 192, 160 });
-    light->SetRange(20.0f);
+    light->SetColor({ 224, 224, 224, 224 });
+    light->SetRange(28.0f);
     light->SetConstantAttenuation(0);
     light->SetLinearAttenuation(0.022f);
-    light->SetQuadraticAttenuation(0.55f);
-    /*VxQuaternion rotation;
-    rotation.FromEulerAngles(90.0f, 0, 0);
-    light->SetQuaternion(rotation);
-    light->SetType(VX_LIGHTSPOT);
-    light->SetColor({192, 192, 192, 64});
-    light->SetRange(100.0f);
-    light->SetConstantAttenuation(0);
-    light->SetLinearAttenuation(0);
-    light->SetQuadraticAttenuation(0.2f);
-    light->SetHotSpot(10.0f);
-    light->SetFallOff(15.0f);*/
+    light->SetQuadraticAttenuation(0.44f);
+    light->SetLightPower(1.41f);
+    /*light_bottom = static_cast<decltype(light)>(m_bml->GetCKContext()->CreateObject(CKCID_LIGHT, "Blackout_Light_Bottom"));
+    VxQuaternion rotation;
+    rotation.FromEulerAngles(-90.0f, 0, 0);
+    light_bottom->SetQuaternion(rotation);
+    light_bottom->SetType(VX_LIGHTSPOT);
+    light_bottom->SetColor({192, 192, 192, 64});
+    light_bottom->SetRange(10.0f);
+    light_bottom->SetConstantAttenuation(0);
+    light_bottom->SetLinearAttenuation(0);
+    light_bottom->SetQuadraticAttenuation(0.2f);
+    light_bottom->SetHotSpot(60.0f);
+    light_bottom->SetFallOff(60.0f);*/
     m_bml->GetCKContext()->GetCurrentScene()->AddObjectToScene(light);
+    //m_bml->GetCKContext()->GetCurrentScene()->AddObjectToScene(light_bottom);
     load_config();
 
     init = true;
@@ -120,6 +124,8 @@ public:
     current_ball->GetPosition(&pos);
     pos.y += 3.6f;
     light->SetPosition(pos);
+    //pos.y -= 12.0f;
+    //light_bottom->SetPosition(pos);
   }
 
   virtual void OnLoadObject(iCKSTRING filename, BOOL isMap, iCKSTRING masterName,
