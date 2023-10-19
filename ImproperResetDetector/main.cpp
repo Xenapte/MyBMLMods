@@ -19,11 +19,12 @@ private:
     *config_path = "..\\ModLoader\\Config\\BML.cfg";
   bmmo::exported::client *mmo_client{};
   bool init = false;
-  HANDLE hChangeEvent;
+  HANDLE hChangeEvent{};
   HANDLE hStopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
-  FILETIME last_config_write_time;
+  FILETIME last_config_write_time{};
   std::thread listener_thread;
-  CKKEYBOARD reset_hotkey = CKKEY_Q;
+  CKKEYBOARD reset_hotkey = CKKEY_R;
+  bool reset_enabled = true;
 
   void init_config_listener() {
     listener_thread = std::thread([this] {
@@ -56,6 +57,15 @@ private:
     });
   }
 
+  void load_reset_key(const std::string& word) {
+    try {
+      int hotkey_int = std::stoi(word);
+      reset_hotkey = static_cast<decltype(reset_hotkey)>(hotkey_int);
+      GetLogger()->Info("Reset hotkey: %d", hotkey_int);
+    }
+    catch (...) {}
+  }
+
   void load_hotkey() {
     using namespace std::chrono;
     static int64_t last_load_time = 0;
@@ -76,25 +86,23 @@ private:
     std::ifstream config(config_path);
     std::string word;
     while (config >> word) {
-      if (word != "Suicide")
-        continue;
-      config >> word;
-      if (word == "K")
-        continue;
-      break;
+      if (word == "Suicide") {
+        config >> word;
+        if (word == "K" || word == "Hotkey")
+          continue;
+        load_reset_key(word);
+      }
+      else if (word.starts_with("EnableSuicide")) {
+        config >> reset_enabled;
+      }
     }
-    try {
-      int hotkey_int = std::stoi(word);
-      reset_hotkey = static_cast<decltype(reset_hotkey)>(hotkey_int);
-      GetLogger()->Info("Reset hotkey: %d", hotkey_int);
-    } catch (...) {}
   }
 
 public:
   ImproperResetDetector(IBML* bml) : IMod(bml) {}
 
   virtual iCKSTRING GetID() override { return "ImproperResetDetector"; }
-  virtual iCKSTRING GetVersion() override { return "3.4.4"; }
+  virtual iCKSTRING GetVersion() override { return "3.5.4"; }
   virtual iCKSTRING GetName() override { return "Improper Reset Detector"; }
   virtual iCKSTRING GetAuthor() override { return "BallanceBug"; }
   virtual iCKSTRING GetDescription() override { return "Detects improper resets (caused by pressing the Reset/Suicide hotkey) in BMMO matches"; }
@@ -118,13 +126,13 @@ public:
   }
 
   void OnProcess() override {
-    if (!m_bml->IsPlaying() || !mmo_client || mmo_client->is_spectator())
+    if (!m_bml->IsPlaying() || !mmo_client || mmo_client->is_spectator() || !mmo_client->connected())
       return;
     
-    if (mmo_client->connected() && m_bml->GetInputManager()->IsKeyPressed(reset_hotkey)) {
+    if (reset_enabled && m_bml->GetInputManager()->IsKeyPressed(reset_hotkey)) {
       bmmo::public_notification_msg msg{};
       msg.type = bmmo::public_notification_type::Warning;
-      msg.text_content = mmo_client->get_client_name() + " just pressed the Reset hotkey at "
+      msg.text_content = mmo_client->get_own_id().second + " just pressed the Reset hotkey at "
         + mmo_client->get_current_map().get_display_name() + "!";
       msg.serialize();
       mmo_client->send(msg.raw.str().data(), msg.size(), k_nSteamNetworkingSend_Reliable);

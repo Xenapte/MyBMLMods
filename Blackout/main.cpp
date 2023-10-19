@@ -12,10 +12,10 @@ class Blackout : public IMod {
   bool init = false;
   CKDataArray *current_level_array{}, *all_level_array{};
   CKLight *light{}, *light_bottom{};
-  IProperty *prop_light{}, *prop_full_dark{};
+  IProperty *prop_enabled{}, *prop_light{}, *prop_full_dark{};
   inline static const std::unordered_set<std::string> exempt_list {
     "tower_floor_top_flat_illu", "laterne_verlauf", "laterne_schatten", "laterne_glas",
-    "ball_lightningsphere", "animtrafo_flashfield"
+    "ball_lightningsphere", "animtrafo_flashfield", "pe_ufo_flash"
   };
 
   CK3dObject *get_current_ball() {
@@ -50,14 +50,14 @@ public:
   Blackout(IBML *bml) : IMod(bml) {}
 
   virtual iCKSTRING GetID() override { return "Blackout"; }
-  virtual iCKSTRING GetVersion() override { return "0.0.2"; }
+  virtual iCKSTRING GetVersion() override { return "0.0.3"; }
   virtual iCKSTRING GetName() override { return "Blackout"; }
   virtual iCKSTRING GetAuthor() override { return "BallanceBug"; }
   virtual iCKSTRING GetDescription() override { return "Darkens everything in your game."; }
   DECLARE_BML_VERSION;
 
   void OnLoadScript(iCKSTRING filename, CKBehavior *script) override {
-    if (!prop_full_dark->GetBoolean()) return;
+    if (!prop_full_dark->GetBoolean() || !prop_enabled->GetBoolean()) return;
     if (std::strcmp(script->GetName(), "Gameplay_Sky") != 0) return;
     auto sky_color = ScriptHelper::FindFirstBB(script, "TT Sky")->GetInputParameter(1);
     VxColor color {80, 80, 80, 128};
@@ -66,6 +66,9 @@ public:
 
   void OnLoad() override {
     auto config = GetConfig();
+    prop_enabled = config->GetProperty("Main", "Enabled");
+    prop_enabled->SetComment("Whether to enable this mod. Requires a game restart.");
+    prop_enabled->SetDefaultBoolean(true);
     prop_light = config->GetProperty("Main", "LightUpSurroundings");
     prop_light->SetComment("Lights up the immediate surrounding environment by a faint light source slightly above the ball.");
     prop_light->SetDefaultBoolean(true);
@@ -75,7 +78,7 @@ public:
   }
 
   void OnPostStartMenu() override {
-    if (init) return;
+    if (init || !prop_enabled->GetBoolean()) return;
 
     current_level_array = m_bml->GetArrayByName("CurrentLevel");
     all_level_array = m_bml->GetArrayByName("AllLevel");
@@ -118,7 +121,7 @@ public:
   }*/
 
   void OnProcess() override {
-    if (!m_bml->IsIngame() || !light) return;
+    if (!(m_bml->IsIngame() && light && prop_enabled->GetBoolean() && prop_light->GetBoolean())) return;
     auto current_ball = get_current_ball();
     VxVector pos;
     current_ball->GetPosition(&pos);
@@ -131,7 +134,7 @@ public:
   virtual void OnLoadObject(iCKSTRING filename, BOOL isMap, iCKSTRING masterName,
                             CK_CLASSID filterClass, BOOL addtoscene, BOOL reuseMeshes, BOOL reuseMaterials,
                             BOOL dynamic, XObjectArray* objArray, CKObject* masterObj) override {
-    if (!prop_full_dark || !prop_full_dark->GetBoolean()) return;
+    if (!(prop_full_dark && prop_full_dark->GetBoolean() && prop_enabled->GetBoolean())) return;
     auto& list = m_bml->GetCKContext()->GetObjectListByType(CKCID_MATERIAL, false);
     for (int i = 0; i < list.Size(); i++) {
       darken_material(static_cast<CKMaterial*>(list[i]));
