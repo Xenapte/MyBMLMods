@@ -51,7 +51,7 @@ inline void CursorClipper::clip_cursor(bool set_playing_status) {
   if (set_playing_status)
     is_playing = true;
   const auto handle = static_cast<HWND>(m_bml->GetCKContext()->GetMainWindow());
-  if (handle != GetActiveWindow() || !is_playing)
+  if (handle != GetForegroundWindow() || !is_playing)
     return;
   RECT client_rect;
   GetClientRect(handle, &client_rect);
