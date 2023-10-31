@@ -42,15 +42,43 @@ class Blackout : public IMod {
   }
 
   void load_config() {
-    light->Active(prop_light->GetBoolean());
+    if (!light) {
+      light = static_cast<decltype(light)>(m_bml->GetCKContext()->CreateObject(CKCID_LIGHT, "Blackout_Light"));
+      light->SetType(VX_LIGHTPOINT);
+      light->SetColor({ 224, 224, 224, 224 });
+      light->SetRange(28.0f);
+      light->SetConstantAttenuation(0);
+      light->SetLinearAttenuation(0.022f);
+      light->SetQuadraticAttenuation(0.44f);
+      light->SetLightPower(1.41f);
+      /*light_bottom = static_cast<decltype(light)>(m_bml->GetCKContext()->CreateObject(CKCID_LIGHT, "Blackout_Light_Bottom"));
+      VxQuaternion rotation;
+      rotation.FromEulerAngles(-90.0f, 0, 0);
+      light_bottom->SetQuaternion(rotation);
+      light_bottom->SetType(VX_LIGHTSPOT);
+      light_bottom->SetColor({192, 192, 192, 64});
+      light_bottom->SetRange(10.0f);
+      light_bottom->SetConstantAttenuation(0);
+      light_bottom->SetLinearAttenuation(0);
+      light_bottom->SetQuadraticAttenuation(0.2f);
+      light_bottom->SetHotSpot(60.0f);
+      light_bottom->SetFallOff(60.0f);*/
+      m_bml->GetCKContext()->GetCurrentScene()->AddObjectToScene(light);
+    }
+    //m_bml->GetCKContext()->GetCurrentScene()->AddObjectToScene(light_bottom);
+    light->Active(prop_light->GetBoolean() && prop_enabled->GetBoolean());
     //light_bottom->Active(prop_light->GetBoolean());
+    if (prop_enabled->GetBoolean()) {
+      current_level_array = m_bml->GetArrayByName("CurrentLevel");
+      all_level_array = m_bml->GetArrayByName("AllLevel");
+    }
   }
 
 public:
   Blackout(IBML *bml) : IMod(bml) {}
 
   virtual iCKSTRING GetID() override { return "Blackout"; }
-  virtual iCKSTRING GetVersion() override { return "0.0.3"; }
+  virtual iCKSTRING GetVersion() override { return "0.0.4"; }
   virtual iCKSTRING GetName() override { return "Blackout"; }
   virtual iCKSTRING GetAuthor() override { return "BallanceBug"; }
   virtual iCKSTRING GetDescription() override { return "Darkens everything in your game."; }
@@ -80,8 +108,7 @@ public:
   void OnPostStartMenu() override {
     if (init || !prop_enabled->GetBoolean()) return;
 
-    current_level_array = m_bml->GetArrayByName("CurrentLevel");
-    all_level_array = m_bml->GetArrayByName("AllLevel");
+    load_config();
 
     VxColor black {0, 0, 0, 255};
     int row_count = all_level_array->GetRowCount();
@@ -89,29 +116,6 @@ public:
       all_level_array->SetElementValue(i, 4, &black, sizeof(black));
     }
 
-    light = static_cast<decltype(light)>(m_bml->GetCKContext()->CreateObject(CKCID_LIGHT, "Blackout_Light"));
-    light->SetType(VX_LIGHTPOINT);
-    light->SetColor({ 224, 224, 224, 224 });
-    light->SetRange(28.0f);
-    light->SetConstantAttenuation(0);
-    light->SetLinearAttenuation(0.022f);
-    light->SetQuadraticAttenuation(0.44f);
-    light->SetLightPower(1.41f);
-    /*light_bottom = static_cast<decltype(light)>(m_bml->GetCKContext()->CreateObject(CKCID_LIGHT, "Blackout_Light_Bottom"));
-    VxQuaternion rotation;
-    rotation.FromEulerAngles(-90.0f, 0, 0);
-    light_bottom->SetQuaternion(rotation);
-    light_bottom->SetType(VX_LIGHTSPOT);
-    light_bottom->SetColor({192, 192, 192, 64});
-    light_bottom->SetRange(10.0f);
-    light_bottom->SetConstantAttenuation(0);
-    light_bottom->SetLinearAttenuation(0);
-    light_bottom->SetQuadraticAttenuation(0.2f);
-    light_bottom->SetHotSpot(60.0f);
-    light_bottom->SetFallOff(60.0f);*/
-    m_bml->GetCKContext()->GetCurrentScene()->AddObjectToScene(light);
-    //m_bml->GetCKContext()->GetCurrentScene()->AddObjectToScene(light_bottom);
-    load_config();
 
     init = true;
   }
