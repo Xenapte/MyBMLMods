@@ -38,6 +38,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "KeystrokeViewer", "Keystrok
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Blackout", "Blackout\Blackout.vcxproj", "{82E55162-C012-4F19-A156-25E4E20F6D73}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Unhider", "Unhider\Unhider.vcxproj", "{65612557-6421-4F41-8C8D-2B7DB99E923E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -192,6 +194,18 @@ Global
 		{82E55162-C012-4F19-A156-25E4E20F6D73}.Release-BMLPlus|x64.Build.0 = Release|x64
 		{82E55162-C012-4F19-A156-25E4E20F6D73}.Release-BMLPlus|x86.ActiveCfg = Release-BMLPlus|Win32
 		{82E55162-C012-4F19-A156-25E4E20F6D73}.Release-BMLPlus|x86.Build.0 = Release-BMLPlus|Win32
+		{65612557-6421-4F41-8C8D-2B7DB99E923E}.Debug|x64.ActiveCfg = Debug|x64
+		{65612557-6421-4F41-8C8D-2B7DB99E923E}.Debug|x64.Build.0 = Debug|x64
+		{65612557-6421-4F41-8C8D-2B7DB99E923E}.Debug|x86.ActiveCfg = Debug|Win32
+		{65612557-6421-4F41-8C8D-2B7DB99E923E}.Debug|x86.Build.0 = Debug|Win32
+		{65612557-6421-4F41-8C8D-2B7DB99E923E}.Release|x64.ActiveCfg = Release|x64
+		{65612557-6421-4F41-8C8D-2B7DB99E923E}.Release|x64.Build.0 = Release|x64
+		{65612557-6421-4F41-8C8D-2B7DB99E923E}.Release|x86.ActiveCfg = Release|Win32
+		{65612557-6421-4F41-8C8D-2B7DB99E923E}.Release|x86.Build.0 = Release|Win32
+		{65612557-6421-4F41-8C8D-2B7DB99E923E}.Release-BMLPlus|x64.ActiveCfg = Release|x64
+		{65612557-6421-4F41-8C8D-2B7DB99E923E}.Release-BMLPlus|x64.Build.0 = Release|x64
+		{65612557-6421-4F41-8C8D-2B7DB99E923E}.Release-BMLPlus|x86.ActiveCfg = Release-BMLPlus|Win32
+		{65612557-6421-4F41-8C8D-2B7DB99E923E}.Release-BMLPlus|x86.Build.0 = Release-BMLPlus|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

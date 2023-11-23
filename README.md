@@ -22,6 +22,7 @@ All my [Ballance Mod Loader](https://github.com/Gamepiaynmo/BallanceModLoader) o
 | [CursorClipper](CursorClipper/) | 2023-08-24 |
 | [KeystrokeViewer](KeystrokeViewer/) | 2023-10-08 |
 | [Blackout](Blackout/) | 2023-10-17 |
+| [Unhider](Unhider/) | 2023-11-23 |
 
 ## Mods not in this repository
 
