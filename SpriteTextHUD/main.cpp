@@ -11,7 +11,7 @@ extern "C" {
 class SpriteTextHUD : public IMod {
   bool init = false;
   IProperty* prop_sr{}, * prop_fps{},
-    * prop_sr_color{}, * prop_fps_color{}, * prop_sr_font{}, * prop_fps_font{};
+    * prop_sr_color{}, * prop_fps_color{}, * prop_sr_font{}, * prop_fps_font{}, * prop_sr_z{}, * prop_fps_z{};
   bool sr_active = false;
   float sr_timer = 0;
   int fps_count = 0, fps_timer = 0;
@@ -28,7 +28,7 @@ class SpriteTextHUD : public IMod {
       sr_timer_title->SetPosition({ 0.03f, 0.8f });
       sr_timer_title->SetAlignment(CKSPRITETEXT_LEFT);
       sr_timer_title->SetTextColor(sr_color);
-      sr_timer_title->SetZOrder(128);
+      sr_timer_title->SetZOrder(prop_sr_z->GetInteger());
       sr_timer_title->SetFont(prop_sr_font->GetString(), utils.get_bgui_font_size(12), 400, false, false);
       sr_timer_title->SetText("SR Timer");
       sr_timer_title->SetVisible(m_bml->IsIngame());
@@ -38,9 +38,10 @@ class SpriteTextHUD : public IMod {
       sr_timer_score->SetPosition({ 0.05f, 0.83f });
       sr_timer_score->SetAlignment(CKSPRITETEXT_LEFT);
       sr_timer_score->SetTextColor(sr_color);
-      sr_timer_score->SetZOrder(128);
+      sr_timer_score->SetZOrder(prop_sr_z->GetInteger());
       sr_timer_score->SetFont(prop_sr_font->GetString(), utils.get_bgui_font_size(12), 400, false, false);
       sr_timer_score->SetVisible(m_bml->IsIngame());
+
       if (m_bml->IsIngame())
         update_sr_text();
     }
@@ -51,7 +52,7 @@ class SpriteTextHUD : public IMod {
       fps_text->SetPosition({ 0.005f, 0.005f });
       fps_text->SetAlignment(CKSPRITETEXT_LEFT);
       fps_text->SetTextColor(fps_color);
-      fps_text->SetZOrder(128);
+      fps_text->SetZOrder(prop_fps_z->GetInteger());
       fps_text->SetFont(prop_fps_font->GetString(), utils.get_bgui_font_size(12), 400, false, false);
       fps_text->SetVisible(true);
     }
@@ -98,7 +99,7 @@ public:
   SpriteTextHUD(IBML* bml) : IMod(bml), utils(bml) {}
 
   virtual iCKSTRING GetID() override { return "SpriteTextHUD"; }
-  virtual iCKSTRING GetVersion() override { return "0.1.0"; }
+  virtual iCKSTRING GetVersion() override { return "0.1.1"; }
   virtual iCKSTRING GetName() override { return "SpriteTextHUD"; }
   virtual iCKSTRING GetAuthor() override { return "BallanceBug"; }
   virtual iCKSTRING GetDescription() override { return "Unhides hidden objects in your game."; }
@@ -122,6 +123,12 @@ public:
     prop_fps_font = config->GetProperty("Style", "FPSFont");
     prop_fps_font->SetDefaultString("Arial");
     prop_fps_font->SetComment("Font of FPS Display.");
+    prop_sr_z = config->GetProperty("Style", "SR_ZOrder");
+    prop_sr_z->SetDefaultInteger(5);
+    prop_sr_z->SetComment("Z Order of SR Timer.");
+    prop_fps_z = config->GetProperty("Style", "FPS_ZOrder");
+    prop_fps_z->SetDefaultInteger(0);
+    prop_fps_z->SetComment("Z Order of FPS Display.");
   }
 
   void OnPostStartMenu() override {
