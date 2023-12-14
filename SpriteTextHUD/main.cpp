@@ -99,10 +99,10 @@ public:
   SpriteTextHUD(IBML* bml) : IMod(bml), utils(bml) {}
 
   virtual iCKSTRING GetID() override { return "SpriteTextHUD"; }
-  virtual iCKSTRING GetVersion() override { return "0.1.1"; }
+  virtual iCKSTRING GetVersion() override { return "0.1.2"; }
   virtual iCKSTRING GetName() override { return "SpriteTextHUD"; }
   virtual iCKSTRING GetAuthor() override { return "BallanceBug"; }
-  virtual iCKSTRING GetDescription() override { return "Unhides hidden objects in your game."; }
+  virtual iCKSTRING GetDescription() override { return "Replaces your FPS and SR Timer display with Sprite Texts for better framerates and customizations."; }
   DECLARE_BML_VERSION;
 
   void OnLoad() override {
@@ -164,12 +164,14 @@ public:
 
   void OnStartLevel() override {
     sr_timer = 0;
+    if (!sr_timer_score) return;
     update_sr_text();
     sr_timer_title->SetVisible(true);
     sr_timer_score->SetVisible(true);
   }
 
   void OnPostExitLevel() override {
+    if (!sr_timer_score) return;
     sr_timer_title->SetVisible(false);
     sr_timer_score->SetVisible(false);
   }
