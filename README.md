@@ -15,7 +15,7 @@ All my [Ballance Mod Loader](https://github.com/Gamepiaynmo/BallanceModLoader) o
 | [WindowSizeFixer](WindowSizeFixer/) | 2022-12-16 |
 | [FreeViewRotation](FreeViewRotation/) | 2022-12-22 |
 | [AdvancedTravelCam](AdvancedTravelCam/) | 2022-12-28 |
-| [ImproperResetDetector](ImproperResetDetector/) | 2022-12-30 |
+| [BMMOAntiCheat](BMMOAntiCheat/) | 2022-12-30 |
 | [BMMOSpeedrunAnnouncer](BMMOSpeedrunAnnouncer/) | 2023-01-10 |
 | [ViewDistanceEditor](ViewDistanceEditor/) | 2023-02-16 |
 | [RotationIndicator](RotationIndicator/) | 2023-03-03 |
@@ -24,6 +24,8 @@ All my [Ballance Mod Loader](https://github.com/Gamepiaynmo/BallanceModLoader) o
 | [Blackout](Blackout/) | 2023-10-17 |
 | [Unhider](Unhider/) | 2023-11-23 |
 | [SpriteTextHUD](SpriteTextHUD/) | 2023-11-30 |
+
+* <small>*BMMOAntiCheat* was originally named *ImproperResetDetector*; it assumed its current name on 2023-12-18.</small>
 
 ## Mods not in this repository
 

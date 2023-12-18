@@ -8,12 +8,13 @@
 #include <fstream>
 #include <chrono>
 #include "exported_client.h"
+#include "translations.hpp"
 
 extern "C" {
   __declspec(dllexport) IMod* BMLEntry(IBML* bml);
 }
 
-class ImproperResetDetector : public IMod {
+class BMMOAntiCheat : public IMod, public bmmo::exported::listener {
 private:
   static constexpr const char *config_directory = "..\\ModLoader\\Config",
     *config_path = "..\\ModLoader\\Config\\BML.cfg";
@@ -99,13 +100,20 @@ private:
   }
 
 public:
-  ImproperResetDetector(IBML* bml) : IMod(bml) {}
+  BMMOAntiCheat(IBML* bml) : IMod(bml) {}
 
-  virtual iCKSTRING GetID() override { return "ImproperResetDetector"; }
-  virtual iCKSTRING GetVersion() override { return "3.5.4"; }
+  virtual iCKSTRING GetID() override { return "BMMOAntiCheat"; }
+  virtual iCKSTRING GetVersion() override { return "0.2.0_bmmo-3.5.8"; }
   virtual iCKSTRING GetName() override { return "Improper Reset Detector"; }
   virtual iCKSTRING GetAuthor() override { return "BallanceBug"; }
-  virtual iCKSTRING GetDescription() override { return "Detects improper resets (caused by pressing the Reset/Suicide hotkey) in BMMO matches"; }
+  virtual iCKSTRING GetDescription() override {
+    return
+      "Anti-Cheat for BMMO.\n\n"
+      "Currently it:\n"
+      "- Detects improper resets (caused by pressing the Reset/Suicide hotkey) in BMMO matches.\n"
+      "- Detects incorrect screen resolution."
+    ;
+  }
   DECLARE_BML_VERSION;
 
   // initialize here since not all mods are loaded by the time of OnLoad
@@ -118,6 +126,7 @@ public:
         GetLogger()->Info("Presence of BMMO client detected, got pointer at %#010x", mmo_client);
         load_hotkey();
         init_config_listener();
+        mmo_client->register_listener(this);
         break;
       }
     }
@@ -131,7 +140,7 @@ public:
     
     if (reset_enabled && m_bml->GetInputManager()->IsKeyPressed(reset_hotkey)) {
       bmmo::public_notification_msg msg{};
-      msg.type = bmmo::public_notification_type::Warning;
+      msg.type = bmmo::public_notification_type::SeriousWarning;
       msg.text_content = mmo_client->get_own_id().second + " just pressed the Reset hotkey at "
         + mmo_client->get_current_map().get_display_name() + "!";
       msg.serialize();
@@ -144,8 +153,36 @@ public:
     listener_thread.join();
     FindCloseChangeNotification(hChangeEvent);
   }
+
+  bool on_pre_login(const char* address, const char* name) override {
+    VxRect screen_rect;
+    m_bml->GetRenderContext()->GetViewRect(screen_rect);
+    auto height = (int) std::roundf(screen_rect.GetHeight()),
+      width = (int) std::roundf(screen_rect.GetWidth()),
+      x = width, y = height;
+    for (int i = 2; i * i <= x; i++) {
+      while (x % i == 0 && y % i == 0) {
+        x /= i; y /= i;
+      }
+    }
+    if (x == 4 && y == 3)
+      return true;
+
+    m_bml->SendIngameMessage(translator::get(ResolutionNotice, false).c_str());
+    char t[128];
+    std::snprintf(t, sizeof t, translator::get(CurrentResolution, false).c_str(),
+                  width, height, x, y);
+    m_bml->SendIngameMessage(t);
+    std::snprintf(t, sizeof t, translator::get(CurrentResolution).c_str(),
+                  width, height, x, y);
+    std::ignore = MessageBox(NULL,
+                             (translator::get(ResolutionNotice) + "\n" + t).c_str(),
+                             translator::get(ConfigIssueDetected).c_str(),
+                             MB_OK | MB_ICONWARNING);
+    return false;
+  }
 };
 
 IMod* BMLEntry(IBML* bml) {
-  return new ImproperResetDetector(bml);
+  return new BMMOAntiCheat(bml);
 }
