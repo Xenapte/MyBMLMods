@@ -104,7 +104,7 @@ public:
 
   virtual iCKSTRING GetID() override { return "BMMOAntiCheat"; }
   virtual iCKSTRING GetVersion() override { return "0.2.0_bmmo-3.5.8"; }
-  virtual iCKSTRING GetName() override { return "Improper Reset Detector"; }
+  virtual iCKSTRING GetName() override { return "BMMO Anti-Cheat"; }
   virtual iCKSTRING GetAuthor() override { return "BallanceBug"; }
   virtual iCKSTRING GetDescription() override {
     return
