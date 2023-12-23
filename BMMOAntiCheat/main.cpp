@@ -7,6 +7,7 @@
 #include <Windows.h>
 #include <fstream>
 #include <chrono>
+#include <numeric>
 #include "exported_client.h"
 #include "translations.hpp"
 
@@ -103,7 +104,7 @@ public:
   BMMOAntiCheat(IBML* bml) : IMod(bml) {}
 
   virtual iCKSTRING GetID() override { return "BMMOAntiCheat"; }
-  virtual iCKSTRING GetVersion() override { return "0.2.0_bmmo-3.5.8"; }
+  virtual iCKSTRING GetVersion() override { return "0.2.1_bmmo-3.5.8"; }
   virtual iCKSTRING GetName() override { return "BMMO Anti-Cheat"; }
   virtual iCKSTRING GetAuthor() override { return "BallanceBug"; }
   virtual iCKSTRING GetDescription() override {
@@ -160,11 +161,8 @@ public:
     auto height = (int) std::roundf(screen_rect.GetHeight()),
       width = (int) std::roundf(screen_rect.GetWidth()),
       x = width, y = height;
-    for (int i = 2; i * i <= x; i++) {
-      while (x % i == 0 && y % i == 0) {
-        x /= i; y /= i;
-      }
-    }
+    auto gcd = std::gcd(x, y);
+    x /= gcd; y /= gcd;
     if (x == 4 && y == 3)
       return true;
 
