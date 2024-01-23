@@ -42,7 +42,6 @@ std::pair<CK3dEntity*, CKPICKRESULT> AdvancedTravelCam::pick_screen() {
 #else
                              &pick_result
 #endif
-
       )))
     return {};
   if (pick_result.Sprite)
@@ -72,6 +71,7 @@ std::pair<float, float> AdvancedTravelCam::get_distance_factors() {
 
 void AdvancedTravelCam::OnLoad() {
   travel_cam_ = static_cast<CKCamera*>(m_bml->GetCKContext()->CreateObject(CKCID_CAMERA, "AdvancedTravelCam"));
+  travel_cam_->SetFrontPlane(0.25f);
   input_manager_ = m_bml->GetInputManager();
 
   auto config = GetConfig();
@@ -87,7 +87,7 @@ void AdvancedTravelCam::OnLoad() {
   prop_maximum_view_distance_ = config->GetProperty("Quantities", "MaximumViewDistance");
   prop_maximum_view_distance_->SetDefaultFloat(4800.0f);
   prop_relative_direction_ = config->GetProperty("Qualities", "RelativeDirection");
-  prop_relative_direction_->SetDefaultBoolean(true);
+  prop_relative_direction_->SetDefaultBoolean(false);
   prop_relative_direction_->SetComment(
     "Whether to move the camera relative to its current direction. "
     "If true, horizontal motion inputs will also affect the camera's vertical position."
@@ -96,10 +96,10 @@ void AdvancedTravelCam::OnLoad() {
   prop_cinematic_camera_->SetDefaultBoolean(true);
   prop_cinematic_camera_->SetComment("Whether to enable cinematic camera (for smooth movement).");
   prop_cinematic_motion_speed_ = config->GetProperty("Quantities", "CinematicMotionSpeed");
-  prop_cinematic_motion_speed_->SetDefaultFloat(0.04f);
+  prop_cinematic_motion_speed_->SetDefaultFloat(0.11f);
   prop_cinematic_motion_speed_->SetComment("Must be between 0 and 1.");
   prop_cinematic_mouse_speed_ = config->GetProperty("Quantities", "CinematicMouseSpeed");
-  prop_cinematic_mouse_speed_->SetDefaultFloat(0.04f);
+  prop_cinematic_mouse_speed_->SetDefaultFloat(0.2f);
   prop_cinematic_mouse_speed_->SetComment("Must be between 0 and 1.");
   for (auto i = 0; i < sizeof(prop_commands_) / sizeof(prop_cinematic_camera_); ++i) {
     prop_commands_[i] = config->GetProperty("Qualities", ("Command" + std::to_string(i + 1)).c_str());
@@ -220,19 +220,21 @@ void AdvancedTravelCam::OnProcess() {
       if (!picked.first)
         return;
 
-      char msg[256];
-      snprintf(msg, sizeof(msg), "\"%s\" selected", picked.first->GetName());
-      m_bml->SendIngameMessage(msg);
-
       VxVector dest_pos, cam_pos, pos_diff;
       picked.first->Transform(&dest_pos, picked.second.IntersectionPoint);
       travel_cam_->GetPosition(&cam_pos);
       travel_cam_->LookAt(dest_pos);
+
+      char msg[256];
+      std::snprintf(msg, sizeof(msg), "\"%s\" (%.2f, %.2f, %.2f) selected",
+                    picked.first->GetName(), dest_pos.x, dest_pos.y, dest_pos.z);
+      m_bml->SendIngameMessage(msg);
+
+      const auto distance_ratio = (picked.second.Distance - 60.0f) / picked.second.Distance;
+      pos_diff = (dest_pos - cam_pos) * distance_ratio;
+      const auto horizontal_distance = Vx2DVector(pos_diff.x, pos_diff.z).Magnitude() * (distance_ratio > 0 ? 1 : -1);
+
       std::tie(sin_yaw, cos_yaw) = get_distance_factors();
-
-      pos_diff = (dest_pos - cam_pos) * ((picked.second.Distance - 60.0f) / picked.second.Distance);
-      auto horizontal_distance = Vx2DVector(pos_diff.x, pos_diff.z).Magnitude();
-
       remaining_horizontal_distance_ = { horizontal_distance * sin_yaw, 0, horizontal_distance * cos_yaw };
       remaining_vertical_distance_ = translation_ref_ ? 0 : pos_diff.y;
       remaining_mouse_distance_ = {};
@@ -306,14 +308,40 @@ void AdvancedTravelCam::exit_travel_cam(bool local_state_only) {
   m_bml->SendIngameMessage("Exited Advanced Travel Camera");
 }
 
+void AdvancedTravelCam::zoom_to_object(const char* name) {
+  auto obj = m_bml->Get3dObjectByName(name);
+  if (!obj) {
+    m_bml->SendIngameMessage(std::string{"Error: \""}.append(name).append("\" not found.").c_str());
+    return;
+  }
+
+  VxVector orient;
+  travel_cam_->GetOrientation(&orient, NULL);
+  VxBbox bbox = obj->GetBoundingBox();
+  VxVector cam_dest = bbox.GetCenter();
+  cam_dest -= orient / orient.Magnitude() * (obj->GetRadius() / std::tan(travel_cam_->GetFov() / 2));
+  travel_cam_->SetPosition(cam_dest);
+
+  char msg[256];
+  std::snprintf(msg, sizeof(msg), "Zoomed to \"%s\" (%.2f, %.2f, %.2f).",
+                obj->GetName(), cam_dest.x, cam_dest.y, cam_dest.z);
+}
+
 void AdvancedTravelCam::TravelCommand::Execute(IBML* bml, const std::vector<std::string>& args) {
   if (!mod_->is_playing())
     return;
   if (args.size() >= 2) {
     if (args[1] == "true" || args[1] == "on")
       mod_->enter_travel_cam();
-    else
+    else if (args[1] == "false" || args[1] == "off")
       mod_->exit_travel_cam();
+    else {
+      std::string obj_name;
+      for (auto iter = args.cbegin() + 1; iter != args.cend(); ++iter)
+        obj_name.append(*iter) += ' ';
+      obj_name.erase(obj_name.length() - 1);
+      mod_->zoom_to_object(obj_name.c_str());
+    }
     return;
   }
   if (mod_->is_in_travel_cam())

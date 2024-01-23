@@ -6,6 +6,7 @@ Advanced Travel Camera is an improved version for the built-in TravelCam mod of 
 
 - `/advancedtravel`
 - `/+travel`
+- `/+travel <objectName>`: move the camera to fit the selected object.
 
 ## Controls
 

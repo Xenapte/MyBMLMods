@@ -57,7 +57,7 @@ public:
   AdvancedTravelCam(IBML* bml): IMod(bml) {}
 
   virtual iCKSTRING GetID() override { return "AdvancedTravelCam"; }
-  virtual iCKSTRING GetVersion() override { return "0.1.1"; }
+  virtual iCKSTRING GetVersion() override { return "0.1.2"; }
   virtual iCKSTRING GetName() override { return "Advanced Travel Camera"; }
   virtual iCKSTRING GetAuthor() override { return "BallanceBug"; }
   virtual iCKSTRING GetDescription() override {
@@ -77,6 +77,8 @@ public:
 
   void enter_travel_cam();
   void exit_travel_cam(bool local_state_only = false);
+
+  void zoom_to_object(const char* name);
 
   inline bool is_in_travel_cam() { return is_in_travel_cam_; }
   inline bool is_playing() { return m_bml->IsPlaying(); }
