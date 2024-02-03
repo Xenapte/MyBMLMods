@@ -4,6 +4,15 @@ IMod* BMLEntry(IBML* bml) {
   return new AdvancedTravelCam(bml);
 }
 
+// Vx(*)Vector::Normalize: not supported on Virtools 2.1?
+inline bool normalize(float& x, float& y) {
+  const auto square_sum = x * x + y * y;
+  if (square_sum == 0) return false;
+  const auto factor = std::sqrt(1 / square_sum);
+  x *= factor, y *= factor;
+  return true;
+};
+
 CKCamera* AdvancedTravelCam::get_ingame_cam() {
   return m_bml->GetTargetCameraByName("InGameCam");
 }
@@ -51,22 +60,19 @@ std::pair<CK3dEntity*, CKPICKRESULT> AdvancedTravelCam::pick_screen() {
 }
 
 std::pair<float, float> AdvancedTravelCam::get_distance_factors() {
-  float sin_yaw = 0, cos_yaw = 1;
+  // float sin_yaw = 0, cos_yaw = 1;
   if (!translation_ref_) {
     /*  VxQuaternion q;
         travel_cam_->GetQuaternion(&q);
         const float siny_cosp = 2 * (q.w * q.z + q.x * q.y), cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
         yaw = std::atan2(siny_cosp, cosy_cosp);  */
     VxVector orient;
-    travel_cam_->GetOrientation(&orient, NULL);
+    travel_cam_->GetOrientation(&orient, nullptr);
     // yaw = std::atan2(orient.x, orient.z);
-    const auto square_sum = orient.x * orient.x + orient.z * orient.z;
-    if (square_sum != 0) {
-      const auto factor = std::sqrt(1 / square_sum);
-      sin_yaw = orient.x * factor, cos_yaw = orient.z * factor;
-    }
+    if (normalize(orient.x, orient.z))
+      return { orient.x, orient.z };
   }
-  return { sin_yaw, cos_yaw };
+  return { 0.0f, 1.0f };
 }
 
 void AdvancedTravelCam::OnLoad() {
@@ -272,9 +278,19 @@ void AdvancedTravelCam::OnProcess() {
   travel_cam_->Translate(translation_horizontal, translation_ref_);
   travel_cam_->Translate({ 0, translation_vertical, 0 });
 
+  VxVector orient_dir, orient_up;
+  travel_cam_->GetOrientation(&orient_dir, &orient_up);
+  constexpr auto min_angle = 1.0f / 4096;
+  auto max_angle = std::abs(PI / 2 - std::acos(orient_up.y));
+  if (max_angle <= min_angle) max_angle = 0;
+  else max_angle -= min_angle;
   const auto display_width = m_bml->GetRenderContext()->GetWidth();
+  const auto translation_mouse_y = translation_mouse.y / display_width;
   travel_cam_->Rotate({0, 1, 0}, translation_mouse.x / display_width);
-  travel_cam_->Rotate({1, 0, 0}, translation_mouse.y / display_width, travel_cam_);
+  travel_cam_->Rotate({1, 0, 0},
+                      (orient_dir.y > 0)
+                      ? (std::min)(translation_mouse_y, max_angle) : (std::max)(translation_mouse_y, -max_angle),
+                      travel_cam_);
 }
 
 void AdvancedTravelCam::enter_travel_cam() {
@@ -316,7 +332,7 @@ void AdvancedTravelCam::zoom_to_object(const char* name) {
   }
 
   VxVector orient;
-  travel_cam_->GetOrientation(&orient, NULL);
+  travel_cam_->GetOrientation(&orient, nullptr);
   VxBbox bbox = obj->GetBoundingBox();
   VxVector cam_dest = bbox.GetCenter();
   cam_dest -= orient / orient.Magnitude() * (obj->GetRadius() / std::tan(travel_cam_->GetFov() / 2));
