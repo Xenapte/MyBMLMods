@@ -20,6 +20,12 @@ private:
   static constexpr const char *config_directory = "..\\ModLoader\\Config",
     *config_path = "..\\ModLoader\\Config\\BML.cfg";
   bmmo::exported::client *mmo_client{};
+  const std::string version = []() -> decltype(version) {
+    char version_str[32];
+    std::snprintf(version_str, sizeof(version_str), "0.2.1_bmmo-%u.%u.%u",
+                  bmmo::current_version.major, bmmo::current_version.minor, bmmo::current_version.subminor);
+    return version_str;
+  }();
   bool init = false;
   HANDLE hChangeEvent{};
   HANDLE hStopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -104,7 +110,7 @@ public:
   BMMOAntiCheat(IBML* bml) : IMod(bml) {}
 
   virtual iCKSTRING GetID() override { return "BMMOAntiCheat"; }
-  virtual iCKSTRING GetVersion() override { return "0.2.1_bmmo-3.5.8"; }
+  virtual iCKSTRING GetVersion() override { return version.c_str(); }
   virtual iCKSTRING GetName() override { return "BMMO Anti-Cheat"; }
   virtual iCKSTRING GetAuthor() override { return "BallanceBug"; }
   virtual iCKSTRING GetDescription() override {
