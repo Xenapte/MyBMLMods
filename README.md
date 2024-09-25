@@ -4,6 +4,11 @@
 
 All my [Ballance Mod Loader](https://github.com/Gamepiaynmo/BallanceModLoader) or [Ballance Mod Loader Plus](https://github.com/doyaGu/BallanceModLoaderPlus) mods since 2022-12-04.
 
+## Download
+
+- [Ballance Map Download Site](http://ballancemaps.ysepan.com)
+- *Maybe I really should look into setting up an autobuild CI here...*
+
 ## Contents
 
 ### Mods in this repository
