@@ -30,6 +30,7 @@ All my [Ballance Mod Loader](https://github.com/Gamepiaynmo/BallanceModLoader) o
 | [Unhider](Unhider/) | 2023-11-23 |
 | [SpriteTextHUD](SpriteTextHUD/) | 2023-11-30 |
 | [StaticCamera](StaticCamera/) | 2024-04-16 |
+| [Sectorless](Sectorless/) | 2024-09-28 |
 
 * <small>*BMMOAntiCheat* was originally named *ImproperResetDetector*; it assumed its current name on 2023-12-18.</small>
 

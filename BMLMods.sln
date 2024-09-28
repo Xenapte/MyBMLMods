@@ -44,6 +44,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BMMOAntiCheat", "BMMOAntiCh
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StaticCamera", "StaticCamera\StaticCamera.vcxproj", "{A8A32DF6-1CEB-4E2A-8B97-8DC5978A75BA}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sectorless", "Sectorless\Sectorless.vcxproj", "{B79694C4-7E3B-4C03-86CF-0591C14173B6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -234,6 +236,18 @@ Global
 		{A8A32DF6-1CEB-4E2A-8B97-8DC5978A75BA}.Release-BMLPlus|x64.Build.0 = Release-BMLPlus|x64
 		{A8A32DF6-1CEB-4E2A-8B97-8DC5978A75BA}.Release-BMLPlus|x86.ActiveCfg = Release-BMLPlus|Win32
 		{A8A32DF6-1CEB-4E2A-8B97-8DC5978A75BA}.Release-BMLPlus|x86.Build.0 = Release-BMLPlus|Win32
+		{B79694C4-7E3B-4C03-86CF-0591C14173B6}.Debug|x64.ActiveCfg = Debug|x64
+		{B79694C4-7E3B-4C03-86CF-0591C14173B6}.Debug|x64.Build.0 = Debug|x64
+		{B79694C4-7E3B-4C03-86CF-0591C14173B6}.Debug|x86.ActiveCfg = Debug|Win32
+		{B79694C4-7E3B-4C03-86CF-0591C14173B6}.Debug|x86.Build.0 = Debug|Win32
+		{B79694C4-7E3B-4C03-86CF-0591C14173B6}.Release|x64.ActiveCfg = Release|x64
+		{B79694C4-7E3B-4C03-86CF-0591C14173B6}.Release|x64.Build.0 = Release|x64
+		{B79694C4-7E3B-4C03-86CF-0591C14173B6}.Release|x86.ActiveCfg = Release|Win32
+		{B79694C4-7E3B-4C03-86CF-0591C14173B6}.Release|x86.Build.0 = Release|Win32
+		{B79694C4-7E3B-4C03-86CF-0591C14173B6}.Release-BMLPlus|x64.ActiveCfg = Release|x64
+		{B79694C4-7E3B-4C03-86CF-0591C14173B6}.Release-BMLPlus|x64.Build.0 = Release|x64
+		{B79694C4-7E3B-4C03-86CF-0591C14173B6}.Release-BMLPlus|x86.ActiveCfg = Release|Win32
+		{B79694C4-7E3B-4C03-86CF-0591C14173B6}.Release-BMLPlus|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
