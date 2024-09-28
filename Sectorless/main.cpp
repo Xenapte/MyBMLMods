@@ -57,7 +57,7 @@ class Sectorless : public IMod {
 
     // mostly the same code at remove_all_other_sectors()
     // this is to try to make the code less convoluted
-    bool dupe_to_other_sectors() {
+    void dupe_to_other_sectors() {
         //std::vector<CKGroup*> groups;
         std::unordered_map<CKGroup*, std::vector<CKBeObject*>> group_items;
         for (int sector = 1; sector < 1000; sector++) {
