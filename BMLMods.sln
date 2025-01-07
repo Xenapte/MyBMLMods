@@ -274,8 +274,8 @@ Global
 		{E0B120A7-630E-40D6-8D90-E9C8103E4D66}.Release|x86.Build.0 = Release|Win32
 		{E0B120A7-630E-40D6-8D90-E9C8103E4D66}.Release-BMLPlus|x64.ActiveCfg = Release|x64
 		{E0B120A7-630E-40D6-8D90-E9C8103E4D66}.Release-BMLPlus|x64.Build.0 = Release|x64
-		{E0B120A7-630E-40D6-8D90-E9C8103E4D66}.Release-BMLPlus|x86.ActiveCfg = Release|Win32
-		{E0B120A7-630E-40D6-8D90-E9C8103E4D66}.Release-BMLPlus|x86.Build.0 = Release|Win32
+		{E0B120A7-630E-40D6-8D90-E9C8103E4D66}.Release-BMLPlus|x86.ActiveCfg = Release-BMLPlus|Win32
+		{E0B120A7-630E-40D6-8D90-E9C8103E4D66}.Release-BMLPlus|x86.Build.0 = Release-BMLPlus|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

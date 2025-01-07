@@ -15,8 +15,8 @@ class EnergyItemCounter : public IMod {
   bool init = false;
   CK_ID ingame_parameter_array{}, ph_array{};
   CK_ID life_group_id{}, point_group_id{};
-  float y_pos = 0.9f;
-  int font_size = 12;
+  float y_pos = 0.8f;
+  int font_size = 10;
   IProperty* prop_y{}, * prop_font_size{};
   utils utils;
   struct sector_data { int extra_lives = 0, extra_points = 0; };
@@ -183,7 +183,7 @@ private:
           }
         }
       }
-      else if (point_group && static_cast<CKBeObject*>(obj)->IsInGroup(point_group)) {
+      else if (point_group && obj3d->IsInGroup(point_group)) {
         // can't check script activation here -
         // we want the extra point to not count if it's already activated
         // but the script remains active all the way until everything is collected
