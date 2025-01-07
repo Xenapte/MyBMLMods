@@ -1,10 +1,7 @@
 #pragma once
 
 #include "../bml_includes.hpp"
-#ifndef WIN32_MEAN_AND_LEAN
-#define WIN32_MEAN_AND_LEAN
-#include <Windows.h>
-#endif // !WIN32_MEAN_AND_LEAN
+#include "../utils.hpp"
 #include <numeric>
 #include <unordered_map>
 
@@ -15,6 +12,7 @@ extern "C" {
 class Sectorless : public IMod {
     IProperty* prop_enabled{}, * prop_remove_checkpoints{}, * prop_dupe_modules{};
     bool enabled{}, remove_checkpoints{}, dupe_modules{};
+    utils utils;
 
     void load_config() {
         enabled = prop_enabled->GetBoolean();
@@ -29,21 +27,12 @@ class Sectorless : public IMod {
         m_bml->SendIngameMessage(msg);
     }
 
-    CKGroup* get_sector_group(int sector) {
-        char sector_name[12];
-        std::snprintf(sector_name, sizeof(sector_name), "Sector_%02d", sector);
-        auto* group = m_bml->GetGroupByName(sector_name);
-        if (!group && sector == 9)
-            return m_bml->GetGroupByName("Sector_9");
-        return group;
-    }
-
     bool remove_all_other_sectors() {
         auto group_01 = m_bml->GetGroupByName("Sector_01");
         if (!group_01)
             return output_abort_message("Group `Sector_01` not found"), false;
         for (int sector = 2; sector < 1000; sector++) {
-            auto* group = get_sector_group(sector);
+            auto* group = utils.get_sector_group(sector);
             if (!group)
                 break;
             auto length = group->GetObjectCount();
@@ -61,7 +50,7 @@ class Sectorless : public IMod {
         //std::vector<CKGroup*> groups;
         std::unordered_map<CKGroup*, std::vector<CKBeObject*>> group_items;
         for (int sector = 1; sector < 1000; sector++) {
-            auto* group = get_sector_group(sector);
+            auto* group = utils.get_sector_group(sector);
             if (!group)
                 break;
             decltype(group_items)::mapped_type items;
@@ -101,7 +90,7 @@ class Sectorless : public IMod {
     }
 
 public:
-    Sectorless(IBML* bml) : IMod(bml) {}
+    Sectorless(IBML* bml) : IMod(bml), utils(bml) {}
 
     virtual iCKSTRING GetID() override { return "Sectorless"; }
     virtual iCKSTRING GetVersion() override { return "0.0.1"; }

@@ -48,6 +48,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Sectorless", "Sectorless\Se
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CameraInversionFixer", "CameraInversionFixer\CameraInversionFixer.vcxproj", "{0CDB1F8F-4CE5-47A6-B2DE-39F7460F115A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EnergyItemCounter", "EnergyItemCounter\EnergyItemCounter.vcxproj", "{E0B120A7-630E-40D6-8D90-E9C8103E4D66}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -262,6 +264,18 @@ Global
 		{0CDB1F8F-4CE5-47A6-B2DE-39F7460F115A}.Release-BMLPlus|x64.Build.0 = Release|x64
 		{0CDB1F8F-4CE5-47A6-B2DE-39F7460F115A}.Release-BMLPlus|x86.ActiveCfg = Release-BMLPlus|Win32
 		{0CDB1F8F-4CE5-47A6-B2DE-39F7460F115A}.Release-BMLPlus|x86.Build.0 = Release-BMLPlus|Win32
+		{E0B120A7-630E-40D6-8D90-E9C8103E4D66}.Debug|x64.ActiveCfg = Debug|x64
+		{E0B120A7-630E-40D6-8D90-E9C8103E4D66}.Debug|x64.Build.0 = Debug|x64
+		{E0B120A7-630E-40D6-8D90-E9C8103E4D66}.Debug|x86.ActiveCfg = Debug|Win32
+		{E0B120A7-630E-40D6-8D90-E9C8103E4D66}.Debug|x86.Build.0 = Debug|Win32
+		{E0B120A7-630E-40D6-8D90-E9C8103E4D66}.Release|x64.ActiveCfg = Release|x64
+		{E0B120A7-630E-40D6-8D90-E9C8103E4D66}.Release|x64.Build.0 = Release|x64
+		{E0B120A7-630E-40D6-8D90-E9C8103E4D66}.Release|x86.ActiveCfg = Release|Win32
+		{E0B120A7-630E-40D6-8D90-E9C8103E4D66}.Release|x86.Build.0 = Release|Win32
+		{E0B120A7-630E-40D6-8D90-E9C8103E4D66}.Release-BMLPlus|x64.ActiveCfg = Release|x64
+		{E0B120A7-630E-40D6-8D90-E9C8103E4D66}.Release-BMLPlus|x64.Build.0 = Release|x64
+		{E0B120A7-630E-40D6-8D90-E9C8103E4D66}.Release-BMLPlus|x86.ActiveCfg = Release|Win32
+		{E0B120A7-630E-40D6-8D90-E9C8103E4D66}.Release-BMLPlus|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

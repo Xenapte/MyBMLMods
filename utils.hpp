@@ -28,6 +28,15 @@ public:
     return (int)std::round(bml_->GetRenderContext()->GetHeight() / (768.0f / 119) * size / ((get_system_dpi == nullptr) ? 96 : get_system_dpi()));
   }
 
+  CKGroup* get_sector_group(int sector) {
+    char sector_name[12];
+    std::snprintf(sector_name, sizeof(sector_name), "Sector_%02d", sector);
+    auto* group = bml_->GetGroupByName(sector_name);
+    if (!group && sector == 9)
+      return bml_->GetGroupByName("Sector_9");
+    return group;
+  }
+
   // trim from start (in place)
   static inline void ltrim(std::string& s) {
     s.erase(s.begin(), std::find_if(s.begin(), s.end(), [](unsigned char ch) {
