@@ -13,8 +13,8 @@ extern "C" {
 class EnergyItemCounter : public IMod {
   std::unique_ptr<BGui::Text> sprite;
   bool init = false;
-  CK_ID ingame_parameter_array{};
-  CK_ID life_group{}, point_group{};
+  CK_ID ingame_parameter_array{}, ph_array{};
+  CK_ID life_group_id{}, point_group_id{};
   float y_pos = 0.9f;
   int font_size = 12;
   IProperty* prop_y{}, * prop_font_size{};
@@ -44,8 +44,6 @@ public:
   void OnStartLevel() override {
     if (!sprite)
       show_sprite();
-    life_group = CKOBJID(m_bml->GetGroupByName("All_P_Extra_Life"));
-    point_group = CKOBJID(m_bml->GetGroupByName("All_P_Extra_Point"));
     update_sprite();
   }
 
@@ -55,42 +53,28 @@ public:
   }
 
   // build energy item data here
-  virtual void OnLoadObject(CKSTRING filename, BOOL isMap, CKSTRING masterName,
-      CK_CLASSID filterClass, BOOL addtoscene, BOOL reuseMeshes, BOOL reuseMaterials,
-      BOOL dynamic, XObjectArray* objArray, CKObject* masterObj) {
-    if (!isMap) return;
-    std::vector<CKGroup*> sectors;
-    for (int sector = 1; sector < 1000; sector++) {
-      const auto sector_group = utils.get_sector_group(sector);
-      if (sector_group) sectors.push_back(sector_group);
-      else break;
-    }
+  void OnPostLoadLevel() override {
+    auto life_group = m_bml->GetGroupByName("All_P_Extra_Life");
+    auto point_group = m_bml->GetGroupByName("All_P_Extra_Point");
+    life_group_id = CKOBJID(life_group);
+    point_group_id = CKOBJID(point_group);
+    auto* ph = m_bml->GetArrayByName("PH");
+    ph_array = CKOBJID(ph);
+    // no need to test for ph, it's always there if the game works
+    int length = ph->GetRowCount();
     level_data = decltype(level_data){{0}}; // sector 0 to make indexing easier
-    level_data.resize(sectors.size() + 1);
-    auto* group = m_bml->GetGroupByName("P_Extra_Life");
-    if (group) {
-      const auto length = group->GetObjectCount();
-      for (int i = 0; i < length; i++) {
-        auto* obj = group->GetObject(i);
-        for (unsigned int sector = 0; sector < sectors.size(); sector++) {
-          if (!obj->IsInGroup(sectors[sector])) continue;
-          level_data[sector+1].extra_lives++;
-          break;
-        }
-      }
+    for (int row = 0; row < length; row++) {
+      int sector;
+      ph->GetElementValue(row, 0, &sector);
+      if ((int) level_data.size() <= sector) level_data.resize(sector + 1);
+      auto* obj = ph->GetElementObject(row, 3);
+      if (obj->GetClassID() != CKCID_3DENTITY) continue;
+      if (life_group && static_cast<CKBeObject*>(obj)->IsInGroup(life_group))
+        level_data[sector].extra_lives++;
+      else if (point_group && static_cast<CKBeObject*>(obj)->IsInGroup(point_group))
+        level_data[sector].extra_points++;
     }
-    group = m_bml->GetGroupByName("P_Extra_Point");
-    if (group) {
-      for (int i = 0; i < group->GetObjectCount(); i++) {
-        auto* obj = group->GetObject(i);
-        for (unsigned int sector = 0; sector < sectors.size(); sector++) {
-          if (!obj->IsInGroup(sectors[sector])) continue;
-          level_data[sector+1].extra_points++;
-          break;
-        }
-      }
-    }
-  };
+  }
 
   void OnLoad() override {
     GetConfig()->SetCategoryComment("Main", "Main settings.");
@@ -116,7 +100,6 @@ public:
   void OnCounterActive() override { update_sprite(); }
   void OnCounterInactive() override { update_sprite(); }
   void OnDead() override { update_sprite(); }
-  void OnExtraPoint() override { update_sprite(); }
   void OnGameOver() override { update_sprite(); }
   void OnLevelFinish() override { update_sprite(); }
   void OnPreCheckpointReached() override { update_sprite(); }
@@ -125,8 +108,11 @@ public:
   void OnPostSubLife() override { update_sprite(); }
   void OnPreSubLife() override { update_sprite(); }
 
-  void OnCamNavActive() override { ensure_update(); }
-  void OnPostCheckpointReached() override { ensure_update(); }
+  void OnExtraPoint() override { delayed_update(); }
+  void OnCamNavActive() override { delayed_update(); }
+  void OnPostCheckpointReached() override { delayed_update(); }
+  void OnPauseLevel() override { delayed_update(); }
+  void OnUnpauseLevel() override { delayed_update(); }
 
 private:
   void show_sprite() {
@@ -146,14 +132,19 @@ private:
   void update_sprite() {
     if (!sprite)
       return;
-    const auto sector = std::clamp(get_current_sector(), 0, (int)level_data.size() - 1);
-    const auto energy = get_remaining_energy_item_count();
+    auto sector = get_current_sector();
+    if (sector >= (int) level_data.size() || sector < 0) sector = 0;
+    const auto energy = get_remaining_energy_item_count(sector);
     const auto& data = level_data[sector];
     char text[128];
     snprintf(text, sizeof(text), "%d/%d extra %s remaining\n%d/%d extra %s remaining",
       energy.extra_lives, data.extra_lives, (data.extra_lives == 1) ? "life" : "lives",
       energy.extra_points, data.extra_points, (data.extra_points == 1) ? "point" : "points");
     sprite->SetText(text);
+  }
+
+  void delayed_update() {
+    m_bml->AddTimer(CKDWORD(1), [this] { update_sprite(); });
   }
 
   // just to make sure it's updating
@@ -169,41 +160,38 @@ private:
     return sector;
   }
 
-  sector_data get_remaining_energy_item_count() {
+  sector_data get_remaining_energy_item_count(int sector) {
     int life_count = 0, point_count = 0;
-    if (life_group) {
-      auto* group = static_cast<CKGroup*>(m_bml->GetCKContext()->GetObject(life_group));
-      int length = group->GetObjectCount();
-      std::putchar('\n');
-      for (int i = 0; i < length; i++) {
-        auto* obj = group->GetObject(i);
-        // P_Extra_Life_Sphere becomes hidden when collected
-        // sometimes there are duplicates, or items from the last sector
-        // isn't properly removed; we need to cross-reference the data we
-        // built when the level is loaded
-        if (
-          obj->GetClassID() == CKCID_SPRITE3D
-          && std::string_view{ obj->GetName() }.starts_with("P_Extra_Life_SilverBall")
-          && obj->IsVisible()
-        ) {
-          life_count++;
+    auto* life_group = life_group_id ? static_cast<CKGroup*>(m_bml->GetCKContext()->GetObject(life_group_id)) : nullptr;
+    auto* point_group = point_group_id ? static_cast<CKGroup*>(m_bml->GetCKContext()->GetObject(point_group_id)) : nullptr;
+    auto* ph = static_cast<CKDataArray*>(m_bml->GetCKContext()->GetObject(ph_array));
+    int ph_length = ph->GetRowCount();
+    for (int row = 0; row < ph_length; row++) {
+      int obj_sector;
+      ph->GetElementValue(row, 0, &obj_sector);
+      if (obj_sector != sector) continue;
+      auto* obj = ph->GetElementObject(row, 3);
+      if (obj->GetClassID() != CKCID_3DENTITY) continue;
+      auto obj3d = static_cast<CK3dEntity*>(obj);
+      if (life_group && obj3d->IsInGroup(life_group)) {
+        int script_length = obj3d->GetScriptCount();
+        for (int i = 0; i < script_length; i++) {
+          auto* script = obj3d->GetScript(i);
+          if (std::strcmp(script->GetName(), "P_Extra_Life_MF Script") == 0 && script->IsActive()) {
+            life_count++;
+            break;
+          }
         }
       }
-    }
-    if (point_group) {
-      auto* group = static_cast<CKGroup*>(m_bml->GetCKContext()->GetObject(point_group));
-      int length = group->GetObjectCount();
-      for (int i = 0; i < length; i++) {
-        auto* obj = group->GetObject(i);
-        // P_Extra_Point_Ball0 (central ball) becomes hidden immediately after collection
-        if (
-          obj->GetClassID() == CKCID_SPRITE3D
-          && std::string_view{ obj->GetName() }.starts_with("P_Extra_Point_Ball0")
-          && obj->IsVisible()
-        ) {
-          point_count++;
-        }
-      }
+      else if (point_group && static_cast<CKBeObject*>(obj)->IsInGroup(point_group)) {
+        // can't check script activation here -
+        // we want the extra point to not count if it's already activated
+        // but the script remains active all the way until everything is collected
+        // we have to check the "Set?" column in PH
+        int set;
+        ph->GetElementValue(row, 4, &set);
+        if (set) point_count++;
+      };
     }
     return { life_count, point_count };
   }
