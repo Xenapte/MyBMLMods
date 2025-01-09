@@ -26,7 +26,7 @@ public:
   EnergyItemCounter(IBML* bml) : IMod(bml), utils(bml) {}
 
   virtual iCKSTRING GetID() override { return "EnergyItemCounter"; }
-  virtual iCKSTRING GetVersion() override { return "0.1.0"; }
+  virtual iCKSTRING GetVersion() override { return "0.1.1"; }
   virtual iCKSTRING GetName() override { return "Energy Item Counter"; }
   virtual iCKSTRING GetAuthor() override { return "BallanceBug"; }
   virtual iCKSTRING GetDescription() override { return "Displays counts of remaining energy items (extra lives and points) in player's current sector."; }
@@ -108,9 +108,10 @@ public:
   void OnPostSubLife() override { update_sprite(); }
   void OnPreSubLife() override { update_sprite(); }
 
-  void OnExtraPoint() override { delayed_update(); }
-  void OnCamNavActive() override { delayed_update(); }
-  void OnPostCheckpointReached() override { delayed_update(); }
+  void OnExtraPoint() override { ensure_update(); }
+  void OnCamNavActive() override { ensure_update(); }
+  void OnPostCheckpointReached() override { ensure_update(); }
+
   void OnPauseLevel() override { delayed_update(); }
   void OnUnpauseLevel() override { delayed_update(); }
 
