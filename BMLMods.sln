@@ -50,6 +50,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CameraInversionFixer", "Cam
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EnergyItemCounter", "EnergyItemCounter\EnergyItemCounter.vcxproj", "{E0B120A7-630E-40D6-8D90-E9C8103E4D66}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "StickyAccess", "StickyAccess\StickyAccess.vcxproj", "{EC1A7061-10DF-483E-86CF-FC9A5E540635}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -276,6 +278,18 @@ Global
 		{E0B120A7-630E-40D6-8D90-E9C8103E4D66}.Release-BMLPlus|x64.Build.0 = Release|x64
 		{E0B120A7-630E-40D6-8D90-E9C8103E4D66}.Release-BMLPlus|x86.ActiveCfg = Release-BMLPlus|Win32
 		{E0B120A7-630E-40D6-8D90-E9C8103E4D66}.Release-BMLPlus|x86.Build.0 = Release-BMLPlus|Win32
+		{EC1A7061-10DF-483E-86CF-FC9A5E540635}.Debug|x64.ActiveCfg = Debug|x64
+		{EC1A7061-10DF-483E-86CF-FC9A5E540635}.Debug|x64.Build.0 = Debug|x64
+		{EC1A7061-10DF-483E-86CF-FC9A5E540635}.Debug|x86.ActiveCfg = Debug|Win32
+		{EC1A7061-10DF-483E-86CF-FC9A5E540635}.Debug|x86.Build.0 = Debug|Win32
+		{EC1A7061-10DF-483E-86CF-FC9A5E540635}.Release|x64.ActiveCfg = Release|x64
+		{EC1A7061-10DF-483E-86CF-FC9A5E540635}.Release|x64.Build.0 = Release|x64
+		{EC1A7061-10DF-483E-86CF-FC9A5E540635}.Release|x86.ActiveCfg = Release|Win32
+		{EC1A7061-10DF-483E-86CF-FC9A5E540635}.Release|x86.Build.0 = Release|Win32
+		{EC1A7061-10DF-483E-86CF-FC9A5E540635}.Release-BMLPlus|x64.ActiveCfg = Release|x64
+		{EC1A7061-10DF-483E-86CF-FC9A5E540635}.Release-BMLPlus|x64.Build.0 = Release|x64
+		{EC1A7061-10DF-483E-86CF-FC9A5E540635}.Release-BMLPlus|x86.ActiveCfg = Release-BMLPlus|Win32
+		{EC1A7061-10DF-483E-86CF-FC9A5E540635}.Release-BMLPlus|x86.Build.0 = Release-BMLPlus|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
