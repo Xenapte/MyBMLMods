@@ -227,9 +227,9 @@ void AdvancedTravelCam::OnProcess() {
         return;
 
       VxVector dest_pos, cam_pos, pos_diff;
-      picked.first->Transform(&dest_pos, picked.second.IntersectionPoint);
+      picked.first->Transform(&dest_pos, VT21_REF(picked.second.IntersectionPoint));
       travel_cam_->GetPosition(&cam_pos);
-      travel_cam_->LookAt(dest_pos);
+      travel_cam_->LookAt(VT21_REF(dest_pos));
 
       char msg[256];
       std::snprintf(msg, sizeof(msg), "\"%s\" (%.2f, %.2f, %.2f) selected",
@@ -245,16 +245,17 @@ void AdvancedTravelCam::OnProcess() {
       remaining_vertical_distance_ = translation_ref_ ? 0 : pos_diff.y;
       remaining_mouse_distance_ = {};
 
-      SetCursor(cursor_arrow);
+      SetCursor(last_cursor_);
     }
     else {
+      last_cursor_ = GetCursor();
       SetCursor(cursor_cross);
     }
-    input_manager_->ShowCursor(!input_manager_->GetCursorVisibility());
+    input_manager_->ShowCursor(input_manager_->GetCursorVisibility() ? 0 : 1); // stupid CKBOOL shenanigans
   }
   if (input_manager_->IsMouseClicked(CK_MOUSEBUTTON_RIGHT) && input_manager_->GetCursorVisibility()) {
     input_manager_->ShowCursor(false);
-    SetCursor(cursor_arrow);
+    SetCursor(last_cursor_);
   }
 
   // interpolation: we calculate our translation distances
@@ -275,8 +276,9 @@ void AdvancedTravelCam::OnProcess() {
   remaining_vertical_distance_ -= translation_vertical;
   remaining_mouse_distance_ -= translation_mouse;
 
-  travel_cam_->Translate(translation_horizontal, translation_ref_);
-  travel_cam_->Translate({ 0, translation_vertical, 0 });
+  travel_cam_->Translate(VT21_REF(translation_horizontal), translation_ref_);
+  const VxVector translation_vertical_vec { 0, translation_vertical, 0 };
+  travel_cam_->Translate(VT21_REF(translation_vertical_vec));
 
   VxVector orient_dir, orient_up;
   travel_cam_->GetOrientation(&orient_dir, &orient_up);
@@ -286,8 +288,9 @@ void AdvancedTravelCam::OnProcess() {
   else max_angle -= min_angle;
   const auto display_width = m_bml->GetRenderContext()->GetWidth();
   const auto translation_mouse_y = translation_mouse.y / display_width;
-  travel_cam_->Rotate({0, 1, 0}, translation_mouse.x / display_width);
-  travel_cam_->Rotate({1, 0, 0},
+  static const VxVector rotation_x{ 0, 1, 0 }, rotation_y{ 1, 0, 0 };
+  travel_cam_->Rotate(VT21_REF(rotation_x), translation_mouse.x / display_width);
+  travel_cam_->Rotate(VT21_REF(rotation_y),
                       (orient_dir.y > 0)
                       ? (std::min)(translation_mouse_y, max_angle) : (std::max)(translation_mouse_y, -max_angle),
                       travel_cam_);
@@ -336,7 +339,7 @@ void AdvancedTravelCam::zoom_to_object(const char* name) {
   VxBbox bbox = obj->GetBoundingBox();
   VxVector cam_dest = bbox.GetCenter();
   cam_dest -= orient / orient.Magnitude() * (obj->GetRadius() / std::tan(travel_cam_->GetFov() / 2));
-  travel_cam_->SetPosition(cam_dest);
+  travel_cam_->SetPosition(VT21_REF(cam_dest));
 
   char msg[256];
   std::snprintf(msg, sizeof(msg), "Zoomed to \"%s\" (%.2f, %.2f, %.2f).",

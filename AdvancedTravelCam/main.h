@@ -48,7 +48,8 @@ private:
 
   void load_config_values();
 
-  const HCURSOR cursor_arrow = LoadCursor(NULL, IDC_ARROW), cursor_cross = LoadCursor(NULL, IDC_CROSS);
+  const HCURSOR cursor_cross = LoadCursor(NULL, IDC_CROSS);
+  HCURSOR last_cursor_{ cursor_cross };
 
   std::pair<CK3dEntity*, CKPICKRESULT> pick_screen();
   std::pair<float, float> get_distance_factors();
