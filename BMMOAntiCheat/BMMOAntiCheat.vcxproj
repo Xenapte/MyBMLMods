@@ -126,7 +126,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>D:\Documents\Ballance\include;D:\Documents\GitHub\BallanceMMO\BallanceMMOCommon;D:\Documents\GitHub\BallanceMMO\BallanceMMOClient;D:\Documents\GitHub\BallanceMMO\submodule\GameNetworkingSockets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Documents\Ballance\include;D:\Documents\GitHub\BallanceMMO\BallanceMMOCommon;D:\Documents\GitHub\BallanceMMO\BallanceMMOClient;D:\Documents\GitHub\BallanceMMO\submodule\GameNetworkingSockets\include;Z:\GitHub\BallanceMMO\BallanceMMOClient;Z:\GitHub\BallanceMMO\BallanceMMOCommon;Z:\GitHub\BallanceMMO\submodule\GameNetworkingSockets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -146,7 +146,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;USING_BML_PLUS;BMMO_USE_BML_PLUS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
-      <AdditionalIncludeDirectories>D:\Documents\Ballance\include;D:\Documents\Ballance\include\Virtools;D:\Documents\GitHub\BallanceMMO\BallanceMMOCommon;D:\Documents\GitHub\BallanceMMO\BallanceMMOClient;D:\Documents\GitHub\BallanceMMO\submodule\GameNetworkingSockets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Documents\Ballance\include;D:\Documents\Ballance\include\Virtools;D:\Documents\GitHub\BallanceMMO\BallanceMMOCommon;D:\Documents\GitHub\BallanceMMO\BallanceMMOClient;D:\Documents\GitHub\BallanceMMO\submodule\GameNetworkingSockets\include;Z:\GitHub\BallanceMMO\BallanceMMOClient;Z:\GitHub\BallanceMMO\BallanceMMOCommon;Z:\GitHub\BallanceMMO\submodule\GameNetworkingSockets\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996</DisableSpecificWarnings>
       <AdditionalOptions>/Zc:strictStrings-</AdditionalOptions>
     </ClCompile>

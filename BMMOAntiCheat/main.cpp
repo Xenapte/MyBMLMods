@@ -17,15 +17,11 @@ extern "C" {
 
 class BMMOAntiCheat : public IMod, public bmmo::exported::listener {
 private:
-  static constexpr const char *config_directory = "..\\ModLoader\\Config",
-    *config_path = "..\\ModLoader\\Config\\BML.cfg";
+  std::string config_directory = "..\\ModLoader\\Config";
+  std::string config_path = "..\\ModLoader\\Config\\BML.cfg";
   bmmo::exported::client *mmo_client{};
-  const std::string version = []() -> decltype(version) {
-    char version_str[32];
-    std::snprintf(version_str, sizeof(version_str), "0.2.1_bmmo-%u.%u.%u",
-                  bmmo::current_version.major, bmmo::current_version.minor, bmmo::current_version.subminor);
-    return version_str;
-  }();
+  const std::string version = "0.2.2";
+  std::string loader_version;
   bool init = false;
   HANDLE hChangeEvent{};
   HANDLE hStopEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
@@ -36,12 +32,12 @@ private:
 
   void init_config_listener() {
     listener_thread = std::thread([this] {
-      hChangeEvent = FindFirstChangeNotification(config_directory, false, FILE_NOTIFY_CHANGE_LAST_WRITE);
+      hChangeEvent = FindFirstChangeNotification(config_directory.c_str(), false, FILE_NOTIFY_CHANGE_LAST_WRITE);
       if (hChangeEvent == INVALID_HANDLE_VALUE || hChangeEvent == NULL) {
         GetLogger()->Error("FindFirstChangeNotification function failed.");
         return;
       }
-      HANDLE hDirectory = CreateFile(config_directory, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
+      HANDLE hDirectory = CreateFile(config_directory.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_BACKUP_SEMANTICS, NULL);
 
       HANDLE hEvents[] = { hChangeEvent, hStopEvent };
 
@@ -81,9 +77,9 @@ private:
     if (current_time - last_load_time < 1000)
       return;
     last_load_time = current_time;
-
     std::this_thread::sleep_for(250ms);
-    HANDLE hConfig = CreateFile(config_path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
+
+    HANDLE hConfig = CreateFile(config_path.c_str(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, 0, NULL);
     FILETIME config_write_time;
     GetFileTime(hConfig, NULL, NULL, &config_write_time);
     CloseHandle(hConfig);
@@ -129,7 +125,16 @@ public:
 
     const auto mod_size = m_bml->GetModCount();
     for (int i = 0; i < mod_size; ++i) {
-      if (mmo_client = dynamic_cast<decltype(mmo_client)>(m_bml->GetMod(i))) {
+      auto* mod = m_bml->GetMod(i);
+      if (std::strcmp(mod->GetID(), "BML") == 0) {
+        loader_version = mod->GetVersion();
+#ifdef USING_BML_PLUS
+        if (loader_version.starts_with("0.2.")) continue;
+        config_directory += 's';
+        config_path = config_directory + std::string{"\\DebugUtilities.cfg"};
+#endif
+      }
+      else if (mmo_client = dynamic_cast<decltype(mmo_client)>(mod)) {
         GetLogger()->Info("Presence of BMMO client detected, got pointer at %#010x", mmo_client);
         load_hotkey();
         init_config_listener();
