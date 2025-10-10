@@ -10,10 +10,13 @@ extern "C" {
   __declspec(dllexport) IMod* BMLEntry(IBML* bml);
 }
 
+using bmmo::Sprintf;
+using bmmo::ansi;
+
 class BMMOMatchRoster : public IMod, public bmmo::exported::listener {
 private:
   bmmo::exported::client* mmo_client_{};
-  bool init_ = false;
+  bool init_ = false, ansi_color_supported_ = false;
   IProperty* prop_enrolled_players_{};
 
   class MatchRosterCommand: public ICommand {
@@ -36,6 +39,12 @@ private:
   public:
     MatchRosterCommand(BMMOMatchRoster& mod) : mod_(mod) {}
   };
+
+  void ingame_msg(std::string msg, int color = bmmo::ansi::Reset) const {
+    if (ansi_color_supported_ && color != bmmo::ansi::Reset)
+      msg = bmmo::ansi::get_escape_code(color) + msg + bmmo::ansi::RESET;
+    m_bml->SendIngameMessage(msg.c_str());
+  }
 
   void init_config() {
     auto* config = GetConfig();
@@ -99,10 +108,10 @@ private:
     }
     if (offline_players.empty()) {
       if (!quiet)
-        m_bml->SendIngameMessage("All enrolled player(s) are online.");
+        ingame_msg(Sprintf("All %u enrolled player(s) are online.", enrolled_players_.size()), ansi::Green);
     }
     else if (!quiet) {
-      m_bml->SendIngameMessage("The following enrolled player(s) are NOT online:");
+      ingame_msg(Sprintf("The following %u enrolled player(s) are NOT online:", offline_players.size()), ansi::Red);
       print_player_list(offline_players);
     }
     for (const auto& player : enrolled_players_) {
@@ -110,7 +119,7 @@ private:
     }
     if (!online_players.empty()) {
       if (!quiet) {
-        m_bml->SendIngameMessage("The following player(s) are online but not enrolled:");
+        ingame_msg(Sprintf("The following %u player(s) are online but not enrolled:", online_players.size()), ansi::Magenta);
         print_player_list(std::vector<std::string>(online_players.begin(), online_players.end()));
       }
       return false;
@@ -143,7 +152,17 @@ public:
 
     const auto mod_size = m_bml->GetModCount();
     for (int i = 0; i < mod_size; ++i) {
-      if (mmo_client_ = dynamic_cast<decltype(mmo_client_)>(m_bml->GetMod(i))) {
+      auto* mod = m_bml->GetMod(i);
+#ifdef USING_BML_PLUS
+      if (std::strcmp(mod->GetID(), "BML") == 0) {
+        BMLVersion loader_version{};
+        int count = std::sscanf(mod->GetVersion(), "%d.%d.%d",
+          &loader_version.major, &loader_version.minor, &BMMO_BML_BUILD_VERSION(loader_version));
+        if (loader_version >= BMLVersion{0, 3, 9})
+          ansi_color_supported_ = true;
+      }
+#endif
+      if (mmo_client_ = dynamic_cast<decltype(mmo_client_)>(mod)) {
         GetLogger()->Info("Presence of BMMO client detected, got pointer at %#010x", mmo_client_);
         mmo_client_->register_listener(this);
         break;
@@ -161,23 +180,27 @@ public:
     if (enrolled_players_.empty())
       return;
     if (!verify_enrolled_players(true)) {
-      m_bml->SendIngameMessage("[Warning] Roster verification failed! You may need to abort the match.");
-      m_bml->SendIngameMessage("[Warning] Please use \"/roster verify\" to check the current status.");
+      ingame_msg("[Warning] Roster verification failed! You may need to abort the match.", ansi::BrightRed);
+      ingame_msg("[Warning] Please use \"/roster verify\" to check the current status.", ansi::BrightRed);
     }
   };
 
   void on_command(const std::vector<std::string>& args) {
     if (!mmo_client_) {
-      m_bml->SendIngameMessage("BMMO client not found, cannot execute command.");
+      ingame_msg("BMMO client not found, cannot execute command.", ansi::Red);
+      return;
+    }
+    if (!mmo_client_->connected()) {
+      ingame_msg("Not connected to a BMMO server.", ansi::Red);
       return;
     }
     switch (args.size()) {
       case 1: {
         if (enrolled_players_.empty()) {
-          m_bml->SendIngameMessage("No enrolled players.");
+          ingame_msg("No enrolled players.", ansi::Underline);
         }
         else {
-          m_bml->SendIngameMessage(("Enrolled players (count: " + std::to_string(enrolled_players_.size()) + "):").c_str());
+          ingame_msg(Sprintf("Enrolled players (count: %u):", enrolled_players_.size()), ansi::Underline);
           print_player_list(enrolled_players_);
         }
         break;
@@ -197,7 +220,7 @@ public:
         else if (lower1 == "clear") {
           enrolled_players_.clear();
           save_enrolled_players();
-          m_bml->SendIngameMessage("Cleared enrolled players.");
+          ingame_msg("Cleared enrolled players.", ansi::WhiteInverse);
           break;
         }
         else if (lower1 == "enroll") {
@@ -213,12 +236,12 @@ public:
             return bmmo::string_utils::to_lower(a) < bmmo::string_utils::to_lower(b);
           });
           save_enrolled_players();
-          m_bml->SendIngameMessage(("Enrolled " + std::to_string(enrolled_players_.size()) + " online players.").c_str());
+          ingame_msg(Sprintf("Enrolled %u online players.", enrolled_players_.size()), ansi::WhiteInverse);
           break;
         }
         else if (lower1 == "verify") {
           if (enrolled_players_.empty()) {
-            m_bml->SendIngameMessage("No enrolled players to verify.");
+            ingame_msg("No enrolled players to verify.", ansi::Cyan);
             break;
           }
           verify_enrolled_players();
