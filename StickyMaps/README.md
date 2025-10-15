@@ -1,3 +1,3 @@
-# StickyAccess
+# StickyMaps
 
-A mod that lets you switch to the Sticky Ball added by BML, under Cheat Mode. Requires the extra BML/BML+ mod "BallSticky" to be loaded.
+A mod that changes every level to start with the sticky ball, and every wood/stone transformer to a sticky ball transformer. Requires the extra BML/BML+ mod "BallSticky" to be loaded.
