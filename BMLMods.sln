@@ -58,6 +58,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BMMOGravitation", "BMMOGrav
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BMMOMatchRoster", "BMMOMatchRoster\BMMOMatchRoster.vcxproj", "{F9F8DDE2-ECB6-42BC-896C-932E15E3C1A7}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TrafoBonus", "TrafoBonus\TrafoBonus.vcxproj", "{F1230778-AFC8-467D-9C96-AA8B73B16D57}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -332,6 +334,18 @@ Global
 		{F9F8DDE2-ECB6-42BC-896C-932E15E3C1A7}.Release-BMLPlus|x64.Build.0 = Release|x64
 		{F9F8DDE2-ECB6-42BC-896C-932E15E3C1A7}.Release-BMLPlus|x86.ActiveCfg = Release-BMLPlus|Win32
 		{F9F8DDE2-ECB6-42BC-896C-932E15E3C1A7}.Release-BMLPlus|x86.Build.0 = Release-BMLPlus|Win32
+		{F1230778-AFC8-467D-9C96-AA8B73B16D57}.Debug|x64.ActiveCfg = Debug|x64
+		{F1230778-AFC8-467D-9C96-AA8B73B16D57}.Debug|x64.Build.0 = Debug|x64
+		{F1230778-AFC8-467D-9C96-AA8B73B16D57}.Debug|x86.ActiveCfg = Debug|Win32
+		{F1230778-AFC8-467D-9C96-AA8B73B16D57}.Debug|x86.Build.0 = Debug|Win32
+		{F1230778-AFC8-467D-9C96-AA8B73B16D57}.Release|x64.ActiveCfg = Release|x64
+		{F1230778-AFC8-467D-9C96-AA8B73B16D57}.Release|x64.Build.0 = Release|x64
+		{F1230778-AFC8-467D-9C96-AA8B73B16D57}.Release|x86.ActiveCfg = Release|Win32
+		{F1230778-AFC8-467D-9C96-AA8B73B16D57}.Release|x86.Build.0 = Release|Win32
+		{F1230778-AFC8-467D-9C96-AA8B73B16D57}.Release-BMLPlus|x64.ActiveCfg = Release-BMLPlus|x64
+		{F1230778-AFC8-467D-9C96-AA8B73B16D57}.Release-BMLPlus|x64.Build.0 = Release-BMLPlus|x64
+		{F1230778-AFC8-467D-9C96-AA8B73B16D57}.Release-BMLPlus|x86.ActiveCfg = Release-BMLPlus|Win32
+		{F1230778-AFC8-467D-9C96-AA8B73B16D57}.Release-BMLPlus|x86.Build.0 = Release-BMLPlus|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
