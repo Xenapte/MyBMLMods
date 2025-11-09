@@ -86,21 +86,16 @@ void ReducedGravity::OnLoadScript(iCKSTRING filename, CKBehavior* script) {
     return;
   const auto script_name = script->GetName();
   if (std::strcmp(script_name, "P_Modul03_MF Script") == 0) {
-    // make elevators functional by adjusting weight properties
-    auto* floor_phys = ScriptHelper::FindFirstBB(script, "Physicalize");
-    auto* source = floor_phys->GetInputParameter(3)->GetDirectSource();
-    float mass;
-    source->GetValue(&mass);
-    mass /= gravity_factor;
-    source->SetValue(&mass, sizeof(mass));
-    auto* walls_phys_all = ScriptHelper::FindFirstBB(script, "Physicalize Walls");
-    for (auto* wall_phys = ScriptHelper::FindNextBB(walls_phys_all, walls_phys_all, "Physicalize");
-         wall_phys != nullptr;
-         wall_phys = ScriptHelper::FindNextBB(walls_phys_all, wall_phys, "Physicalize")) {
-      source = wall_phys->GetInputParameter(3)->GetDirectSource();
-      source->GetValue(&mass);
-      mass /= gravity_factor;
-      source->SetValue(&mass, sizeof(mass));
+    // make elevators functional by adjusting the upward force
+    auto* spring_bb = ScriptHelper::FindFirstBB(script, "Set Physics Spring");
+    int count = spring_bb->GetInputParameterCount();
+    for (int i = 0; i < count; i++) {
+      auto* param = spring_bb->GetInputParameter(i)->GetDirectSource();
+      if (std::strcmp(param->GetName(), "Constant") != 0) continue;
+      float force;
+      param->GetValue(&force);
+      force *= gravity_factor;
+      param->SetValue(&force, sizeof(force));
     }
   }
 }
