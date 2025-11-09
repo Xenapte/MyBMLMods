@@ -37,6 +37,7 @@ All my [Ballance Mod Loader](https://github.com/Gamepiaynmo/BallanceModLoader) o
 | [BMMOMatchRoster](BMMOMatchRoster/) | 2025-10-10 |
 | [StickyMaps](StickyMaps/) | 2025-10-14 |
 | [TrafoBonus](TrafoBonus/) | 2025-10-24 |
+| [ReducedGravity](ReducedGravity/) | 2025-11-09 |]
 
 * <small>*BMMOAntiCheat* was originally named *ImproperResetDetector*; it assumed its current name on 2023-12-18.</small>
 
