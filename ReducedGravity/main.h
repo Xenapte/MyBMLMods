@@ -24,14 +24,15 @@ public:
   virtual void OnCamNavActive() override;
   virtual void OnBallNavActive() override;
   virtual void OnProcess() override;
-  virtual void OnLoadObject(iCKSTRING filename, CKBOOL isMap, iCKSTRING masterName, CK_CLASSID filterClass, CKBOOL addtoscene, CKBOOL reuseMeshes, CKBOOL reuseMaterials, CKBOOL dynamic, XObjectArray* objArray, CKObject* masterObj) override;
+  virtual void OnLoadScript(iCKSTRING filename, CKBehavior* script) override;
 
   virtual void OnPostStartMenu() override;
 
 private:
   std::vector<CKBehavior*> physics_bb;
   std::unique_ptr<BGui::Label> status;
-  const VxVector gravity = { 0, -12, 0 };
+  const float gravity_factor = 0.6f; // hardcoded to prevent cheating
+  const VxVector gravity = { 0, -20 * gravity_factor, 0 };
   static constexpr const float time_factor = 2;
   bool init = false, disabled = false;
 

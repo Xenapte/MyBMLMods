@@ -81,54 +81,27 @@ void ReducedGravity::OnProcess() {
   status->Process();
 }
 
-void ReducedGravity::OnLoadObject(iCKSTRING filename, CKBOOL isMap, iCKSTRING masterName,
-    CK_CLASSID filterClass, CKBOOL addtoscene, CKBOOL reuseMeshes, CKBOOL reuseMaterials,
-    CKBOOL dynamic, XObjectArray* objArray, CKObject* masterObj) {
-  if (!isMap || disabled)
+void ReducedGravity::OnLoadScript(iCKSTRING filename, CKBehavior* script) {
+  if (disabled)
     return;
-  auto* modul03_group = m_bml->GetGroupByName("P_Modul_03");
-  if (!modul03_group)
-    return;
-
-  auto* ctx = m_bml->GetCKContext();
-  auto get_or_create_group = [this, ctx](const char* name) -> CKGroup* {
-    auto* group = m_bml->GetGroupByName(name);
-    if (group)
-      return group;
-    group = static_cast<CKGroup*>(ctx->CreateObject(CKCID_GROUP, const_cast<char*>(name))); // stupid ckstring shenanigans
-    if (group)
-      return group;
-    GetLogger()->Error("Failed to create or get %s group!", name);
-    return nullptr;
-  };
-
-  auto* stoneball_group = get_or_create_group("P_Ball_Stone");
-  auto* box_group = get_or_create_group("P_Box");
-  if (!stoneball_group || !box_group)
-    return;
-
-  CKDependencies dep;
-  dep.Resize(40); dep.Fill(0);
-  dep.m_Flags = CK_DEPENDENCIES_CUSTOM;
-  dep[CKCID_OBJECT] = CK_DEPENDENCIES_COPY_OBJECT_NAME | CK_DEPENDENCIES_COPY_OBJECT_UNIQUENAME;
-  dep[CKCID_BEOBJECT] = CK_DEPENDENCIES_COPY_BEOBJECT_ATTRIBUTES | CK_DEPENDENCIES_COPY_BEOBJECT_GROUPS | CK_DEPENDENCIES_COPY_BEOBJECT_SCRIPTS;
-
-  auto copy_and_set_props = [this, ctx, modul03_group, &dep](CKBeObject* obj, CKGroup* new_group, float y_shift) {
-    auto weight = static_cast<CK3dObject*>(ctx->CopyObject(obj, &dep, "._Weight", CK_OBJECTCREATION_RENAME));
-    VxVector pos;
-    weight->GetPosition(&pos);
-    pos.y += y_shift;
-    weight->SetPosition(VT21_REF(pos));
-    // remove from original group and add to box group
-    modul03_group->RemoveObject(weight);
-    new_group->AddObject(weight);
-  };
-
-  const int length = modul03_group->GetObjectCount();
-  for (int i = 0; i < length; i++) {
-    auto* obj = modul03_group->GetObject(i);
-    copy_and_set_props(obj, box_group, -5.55f);
-    copy_and_set_props(obj, stoneball_group, -1.0f);
+  const auto script_name = script->GetName();
+  if (std::strcmp(script_name, "P_Modul03_MF Script") == 0) {
+    // make elevators functional by adjusting weight properties
+    auto* floor_phys = ScriptHelper::FindFirstBB(script, "Physicalize");
+    auto* source = floor_phys->GetInputParameter(3)->GetDirectSource();
+    float mass;
+    source->GetValue(&mass);
+    mass /= gravity_factor;
+    source->SetValue(&mass, sizeof(mass));
+    auto* walls_phys_all = ScriptHelper::FindFirstBB(script, "Physicalize Walls");
+    for (auto* wall_phys = ScriptHelper::FindNextBB(walls_phys_all, walls_phys_all, "Physicalize");
+         wall_phys != nullptr;
+         wall_phys = ScriptHelper::FindNextBB(walls_phys_all, wall_phys, "Physicalize")) {
+      source = wall_phys->GetInputParameter(3)->GetDirectSource();
+      source->GetValue(&mass);
+      mass /= gravity_factor;
+      source->SetValue(&mass, sizeof(mass));
+    }
   }
 }
 
