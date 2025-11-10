@@ -5,6 +5,9 @@ IMod* BMLEntry(IBML* bml) {
 }
 
 void ReducedGravity::set_physics() {
+#ifdef ALLOW_CUSTOM_GRAVITY
+  VxVector gravity = default_gravity * gravity_factor;
+#endif
   for (const auto& bb: physics_bb) {
     auto* gravity_param = bb->GetInputParameter(0)->GetDirectSource();
     gravity_param->SetValue(&gravity, sizeof(gravity));
@@ -17,14 +20,42 @@ void ReducedGravity::set_physics() {
   }
 }
 
+// make elevators functional by adjusting the upward force
+void ReducedGravity::set_modul03_spring_force() {
+  if (!modul03_script)
+    return;
+  auto* spring_bb = ScriptHelper::FindFirstBB(modul03_script, "Set Physics Spring");
+  int count = spring_bb->GetInputParameterCount();
+  for (int i = 0; i < count; i++) {
+    auto* param = spring_bb->GetInputParameter(i)->GetDirectSource();
+    if (std::strcmp(param->GetName(), "Constant") != 0) continue;
+    float force;
+    param->GetValue(&force);
+    force *= gravity_factor;
+    param->SetValue(&force, sizeof(force));
+  }
+}
+
+inline void ReducedGravity::update_status_text() {
+  if (!status)
+    return;
+  char buffer[64];
+  std::snprintf(buffer, sizeof(buffer), "Reduced Gravity Enabled | %g%%", gravity_factor * 100);
+  status->SetText(buffer);
+}
+
 void ReducedGravity::OnLoad() {
   status = std::make_unique<BGui::Label>("ReducedGravityStatus");
   status->SetAlignment(ALIGN_BOTTOM);
   status->SetPosition({ 0.5f, 0.998f });
-  status->SetText("Reduced Gravity Enabled");
+  update_status_text();
   status->SetFont(ExecuteBB::GAMEFONT_03);
   status->SetZOrder(24);
   status->SetVisible(true);
+
+#ifdef ALLOW_CUSTOM_GRAVITY
+  m_bml->RegisterCommand(new GravityCommand(this));
+#endif
 }
 
 void ReducedGravity::OnPostLoadLevel() {
@@ -86,17 +117,8 @@ void ReducedGravity::OnLoadScript(iCKSTRING filename, CKBehavior* script) {
     return;
   const auto script_name = script->GetName();
   if (std::strcmp(script_name, "P_Modul03_MF Script") == 0) {
-    // make elevators functional by adjusting the upward force
-    auto* spring_bb = ScriptHelper::FindFirstBB(script, "Set Physics Spring");
-    int count = spring_bb->GetInputParameterCount();
-    for (int i = 0; i < count; i++) {
-      auto* param = spring_bb->GetInputParameter(i)->GetDirectSource();
-      if (std::strcmp(param->GetName(), "Constant") != 0) continue;
-      float force;
-      param->GetValue(&force);
-      force *= gravity_factor;
-      param->SetValue(&force, sizeof(force));
-    }
+    modul03_script = script;
+    set_modul03_spring_force();
   }
 }
 
