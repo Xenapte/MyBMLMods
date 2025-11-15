@@ -3,6 +3,10 @@
 #include "../bml_includes.hpp"
 #include <memory>
 
+#define FIXED_GRAVITY_RATE 0.525
+#define STRINGIFY_IMPL(x) #x
+#define STRINGIFY(x) STRINGIFY_IMPL(x)
+
 extern "C" {
   __declspec(dllexport) IMod* BMLEntry(IBML* bml);
 }
@@ -13,11 +17,11 @@ public:
 
   virtual iCKSTRING GetID() override { return "ReducedGravity"; }
   virtual iCKSTRING GetVersion() override {
-    return "0.2.0"
+    return "0.2.1"
 #ifdef ALLOW_CUSTOM_GRAVITY
       "-adjustable";
 #else
-      "-fixed";
+      "-fixed-" STRINGIFY(FIXED_GRAVITY_RATE);
 #endif
   }
   virtual iCKSTRING GetName() override { return "Reduced Gravity Mode"; }
@@ -38,7 +42,7 @@ public:
 private:
   std::vector<CKBehavior*> physics_bb;
   std::unique_ptr<BGui::Label> status;
-  float gravity_factor = 0.6f; // hardcoded to prevent cheating
+  float gravity_factor = float{ FIXED_GRAVITY_RATE }; // hardcoded to prevent cheating
 #ifdef ALLOW_CUSTOM_GRAVITY
   const VxVector default_gravity = { 0, -20, 0 };
 #else
